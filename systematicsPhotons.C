@@ -487,15 +487,13 @@ void combinePublications()
   }
 
   //Fit the resulting combined spectra with a modified Hagedorn function
-  f_combined_fit_npf = new TF1("f_combined_fit_npf", "2*TMath::Pi()*x*[0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])", 0, 18.0);
-  f_combined_fit_npf->SetParameters(5.46239e-01,-7.26088e-02,3.25735e-01,6.91520e-01,6.49533e+00);
-  //f_combined_fit_npf->SetParameters(0.1, -0.191588, 0.0164036, 0.999159, 8.42105);
-  //g_combined_npf->Fit(f_combined_fit_npf, "Q0R");
+  f_combined_fit = new TF1("f_combined_fit", "[0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])", 0, 18.0);
+  //f_combined_fit->SetParameters(5.46239e-01,-7.26088e-02,3.25735e-01,6.91520e-01,6.49533e+00);
+  f_combined_fit->SetParameters(30.0, -0.191588, 0.0164036, 0.999159, 8.42105);
+  g_combined->Fit(f_combined_fit, "Q0R");
 
-  f_combined_fit = new TF1("f_combined_fit", "2*TMath::Pi()*x*[0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])", 0, 18.0);
-  f_combined_fit_npf->SetParameters(5.46239e-01,-7.26088e-02,3.25735e-01,6.91520e-01,6.49533e+00);
-  //f_combined_fit->SetParameters(0.1, -0.191588, 0.0164036, 0.999159, 8.42105);
-  //g_combined->Fit(f_combined_fit, "Q0R");
+  f_combined_fit_npf = new TF1("f_combined_fit_npf", "2*TMath::Pi()*x*[0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])", 0, 18.0);
+  f_combined_fit_npf->SetParameters(f_combined_fit->GetParameter(0), f_combined_fit->GetParameter(1), f_combined_fit->GetParameter(2), f_combined_fit->GetParameter(3), f_combined_fit->GetParameter(4));
 
   //Result of above fit
   //f_combined_fit_npf->SetParameters(5.46239e-01,-7.26088e-02,3.25735e-01,6.91520e-01,6.49533e+00);
@@ -771,7 +769,7 @@ void plotDataNoPhaseFactor()
   //g_086_spectrum_npf->Draw("P,same");
   //g_060_spectrum_var1_npf->Draw("P,same");
   //g_060_spectrum_var2_npf->Draw("P,same");
-  //f_published_060_spectrum_fit_extrapolated_npf->Draw("same");
+  f_published_060_spectrum_fit_extrapolated_npf->Draw("same");
   //f_spectrum_fit_var1_extrapolated_npf->Draw("same");
   //f_spectrum_fit_var2_extrapolated_npf->Draw("same");
   //f_spectrum_fit_var3_extrapolated_npf->Draw("same");
@@ -814,6 +812,6 @@ void systematicsPhotons()
   defineVariation3();
   //defineVariation4();
   plotDataPublishedFit();
-  plotDataNoPhaseFactor();
+  //plotDataNoPhaseFactor();
 }
 
