@@ -497,6 +497,9 @@ void combinePublications()
 
   //Result of above fit
   //f_combined_fit_npf->SetParameters(2.42345e-01, -8.27585e-02, 9.18447e-03, 4.13943e+00, 1.36974e+01);
+
+  f_combined_fit->SetLineColor(kBlack);
+  f_combined_fit_npf->SetLineColor(kBlack);
 }
 
 
@@ -550,51 +553,50 @@ void defineVariation1()
 void defineVariation2()
 {
   //Define the seventh point in the spectrum as a tipping point, and tilt clockwise about that point by an amount proportional to the point's pT
-  float data_y_ppg060_var2[NPOINTS060];
-  int tippingPointIndex = 6;
-  float pTextreme = data_x_ppg060[0];
-  float pT0 = data_x_ppg060[tippingPointIndex];
+  float data_y_var2[NPOINTS060 + NPOINTS086];
+  int tippingPointIndex = 9;
+  float pTextreme = data_x[0];
+  float pT0 = data_x[tippingPointIndex];
 
-  for (int i = 0; i < NPOINTS060; i++)
+  for (int i = 0; i < NPOINTS060 + NPOINTS086; i++)
   {
-    float scaling = -1 * (err_y_syst_ppg060[i] / 2.0) * ((data_x_ppg060[i] - pT0) / (pTextreme - pT0));
-    data_y_ppg060_var2[i] = data_y_ppg060[i] + scaling;
+    float scaling = -1*(err_y_syst[i] / 2.0) * ((data_x[i] - pT0) / (pTextreme - pT0));
+    data_y_var2[i] = data_y[i] + scaling;
   }
 
-  g_060_spectrum_var2 = new TGraphErrors(NPOINTS060, data_x_ppg060, data_y_ppg060_var2, err_x, err_y_stat_ppg060);
+  g_060_spectrum_var2 = new TGraphErrors(NPOINTS060 + NPOINTS086, data_x, data_y_var2, err_x, err_y_stat);
   g_060_spectrum_var2->SetMarkerColor(kBlue);
   g_060_spectrum_var2->SetLineColor(kBlue);
   g_060_spectrum_var2->SetMarkerStyle(20);
   g_060_spectrum_var2->SetMarkerSize(0.7);
 
   //Fit the data with a modified Hagedorn function
-  f_spectrum_fit_var2 = new TF1("f_spectrum_fit_var2", "[0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])", 0, 15.0);
-  //f_spectrum_fit_var2->SetParameters(26.1, 2.0, 2.5, 0.28, 5.89);
-  f_spectrum_fit_var2->SetParameters(5.03, -0.45, 0.014, 0.27, 4.72);
+  f_spectrum_fit_var2 = new TF1("f_spectrum_fit_var2", "[0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])", 1.69126, 15.0);
+  f_spectrum_fit_var2->SetParameters(2.42345e-01, -8.27585e-02, 9.18447e-03, 4.13943e+00, 1.36974e+01);
   g_060_spectrum_var2->Fit(f_spectrum_fit_var2, "Q0R");
-  f_spectrum_fit_var2->SetLineColor(kBlue);
 
   f_spectrum_fit_var2_extrapolated = new TF1("f_spectrum_fit_var2_extrapolated", "([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 0.0, 18.0);
   f_spectrum_fit_var2_extrapolated->SetParameters(f_spectrum_fit_var2->GetParameter(0), f_spectrum_fit_var2->GetParameter(1), f_spectrum_fit_var2->GetParameter(2), f_spectrum_fit_var2->GetParameter(3), f_spectrum_fit_var2->GetParameter(4));
-  f_spectrum_fit_var2_extrapolated->SetLineColor(kBlue);
 
-  f_spectrum_fit_var2_extrapolated_npf = new TF1("f_spectrum_fit_var2_extrapolated_npf", "2*TMath::Pi()*x*([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 0.0, 18.0);
+  f_spectrum_fit_var2_extrapolated_npf = new TF1("f_spectrum_fit_var2_extrapolated_npf", "2*TMath::Pi()*x*(([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])))", 0.0, 18.0);
   f_spectrum_fit_var2_extrapolated_npf->SetParameters(f_spectrum_fit_var2->GetParameter(0), f_spectrum_fit_var2->GetParameter(1), f_spectrum_fit_var2->GetParameter(2), f_spectrum_fit_var2->GetParameter(3), f_spectrum_fit_var2->GetParameter(4));
-  f_spectrum_fit_var2_extrapolated_npf->SetLineColor(kBlue);
 
   //Spectrum without phase space factor
-  float data_y_ppg060_npf[NPOINTS060];
+  float data_y_npf[NPOINTS060 + NPOINTS086];
 
-  for (int i = 0; i < NPOINTS060; i++)
+  for (int i = 0; i < NPOINTS060 + NPOINTS086; i++)
   {
-    data_y_ppg060_npf[i] = 2 * TMath::Pi() * data_x_ppg060[i] * data_y_ppg060_var2[i];
+    data_y_npf[i] = 2 * TMath::Pi() * data_x[i] * data_y_var2[i];
   }
 
-  g_060_spectrum_var2_npf = new TGraphErrors(NPOINTS060, data_x_ppg060, data_y_ppg060_npf, err_x, err_y_stat_ppg060);
+  g_060_spectrum_var2_npf = new TGraphErrors(NPOINTS060 + NPOINTS086, data_x, data_y_npf, err_x, err_y_stat);
   g_060_spectrum_var2_npf->SetMarkerColor(kBlue);
   g_060_spectrum_var2_npf->SetLineColor(kBlue);
   g_060_spectrum_var2_npf->SetMarkerStyle(20);
   g_060_spectrum_var2_npf->SetMarkerSize(0.7);
+
+  f_spectrum_fit_var2_extrapolated->SetLineColor(kBlue);
+  f_spectrum_fit_var2_extrapolated_npf->SetLineColor(kBlue);
 }
 
 
@@ -669,12 +671,12 @@ void plotDataPublishedFit()
   g_combined->SetMarkerSize(0.8);
   g_combined->SetMarkerColor(kBlack);
   g_combined->Draw("P,same");
-  g_060_spectrum_var1->Draw("P,same");
-  //g_060_spectrum_var2->Draw("P,same");
+  //g_060_spectrum_var1->Draw("P,same");
+  g_060_spectrum_var2->Draw("P,same");
   //f_published_060_spectrum_fit_extrapolated->Draw("same");
   f_combined_fit->Draw("same");
   f_spectrum_fit_var1_extrapolated->Draw("same");
-  //f_spectrum_fit_var2->Draw("same");
+  f_spectrum_fit_var2_extrapolated->Draw("same");
 
   //f_spectrum_fit_var3_extrapolated->Draw("same");
   //f_spectrum_fit_var4->Draw("same");
@@ -767,11 +769,11 @@ void plotDataNoPhaseFactor()
   //g_060_spectrum_npf->Draw("P,same");
   //g_136_spectrum_npf->Draw("P,same");
   //g_086_spectrum_npf->Draw("P,same");
-  g_060_spectrum_var1_npf->Draw("P,same");
-  //g_060_spectrum_var2_npf->Draw("P,same");
+  //g_060_spectrum_var1_npf->Draw("P,same");
+  g_060_spectrum_var2_npf->Draw("P,same");
   //f_published_060_spectrum_fit_extrapolated_npf->Draw("same");
   f_spectrum_fit_var1_extrapolated_npf->Draw("same");
-  //f_spectrum_fit_var2_extrapolated_npf->Draw("same");
+  f_spectrum_fit_var2_extrapolated_npf->Draw("same");
   //f_spectrum_fit_var3_extrapolated_npf->Draw("same");
   //f_spectrum_fit_var4_extrapolated_npf->Draw("same");
 
@@ -808,7 +810,7 @@ void systematicsPhotons()
   makePublishedSpectrum136();
   combinePublications();
   defineVariation1();
-  //defineVariation2();
+  defineVariation2();
   //defineVariation3();
   //defineVariation4();
   plotDataPublishedFit();
