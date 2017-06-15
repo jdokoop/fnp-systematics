@@ -488,16 +488,15 @@ void combinePublications()
 
   //Fit the resulting combined spectra with a modified Hagedorn function
   f_combined_fit = new TF1("f_combined_fit", "[0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])", 0, 18.0);
-  //f_combined_fit->SetParameters(5.46239e-01,-7.26088e-02,3.25735e-01,6.91520e-01,6.49533e+00);
-  //f_combined_fit->SetParameters(0.008, -0.191588, 0.0164036, 0.999159, 8.42105);
-  f_combined_fit->SetParameters(0.00488828, 0.8888921, 0.209916, 1.43194, 6.48914);
-  //g_combined->Fit(f_combined_fit, "Q0R");
+  f_combined_fit->SetParameters(2.42345e-01, -8.27585e-02, 9.18447e-03, 4.13943e+00, 1.36974e+01);
+  //f_combined_fit->SetParameters(0.00488828, 0.8888921, 0.209916, 1.43194, 6.48914); //Looks most like PPG162
+  g_combined->Fit(f_combined_fit, "0R");
 
   f_combined_fit_npf = new TF1("f_combined_fit_npf", "2*TMath::Pi()*x*[0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])", 0, 18.0);
   f_combined_fit_npf->SetParameters(f_combined_fit->GetParameter(0), f_combined_fit->GetParameter(1), f_combined_fit->GetParameter(2), f_combined_fit->GetParameter(3), f_combined_fit->GetParameter(4));
 
   //Result of above fit
-  //f_combined_fit_npf->SetParameters(5.46239e-01,-7.26088e-02,3.25735e-01,6.91520e-01,6.49533e+00);
+  //f_combined_fit_npf->SetParameters(2.42345e-01, -8.27585e-02, 9.18447e-03, 4.13943e+00, 1.36974e+01);
 }
 
 
@@ -672,7 +671,7 @@ void plotDataPublishedFit()
   g_combined->Draw("P,same");
   //g_060_spectrum_var1->Draw("P,same");
   //g_060_spectrum_var2->Draw("P,same");
-  //f_published_060_spectrum_fit_extrapolated->Draw("same");
+  f_published_060_spectrum_fit_extrapolated->Draw("same");
   f_combined_fit->Draw("same");
   //f_spectrum_fit_var1_extrapolated->Draw("same");
   //f_spectrum_fit_var2->Draw("same");
