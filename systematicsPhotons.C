@@ -16,7 +16,7 @@
 const int NPOINTSNLO136 = 19;
 const int NPOINTSNLO060 = 27;
 const int NPOINTS060 = 17;
-const int NPOINTS086 = 5;
+const int NPOINTS086 = 3;//5;
 const int NPOINTS136 = 18;
 
 TGraph *g_nlo_136;
@@ -51,6 +51,7 @@ TF1 *f_published_136_spectrum_fit_extrapolated;
 TF1 *f_published_136_spectrum_fit_extrapolated_npf;
 
 TF1 *f_combined_fit;
+TF1 *f_combined_fit_npf;
 
 TBox *systematicErrors060[NPOINTS060];
 TBox *systematicErrors_npf060[NPOINTS060];
@@ -148,10 +149,10 @@ float err_y_syst_ppg060[NPOINTS060] = {2.54E-05,
 // PPG086 - Dd^3\sigma/dp^3 = (1/2pi pT) dN/dpT
 ///////////////////////////////////////////////////////////
 
-float data_x_ppg086[NPOINTS086] = {1.69126, 2.19773, 2.70364, 3.3488, 4.37494};
-float data_y_ppg086[NPOINTS086] = {0.000609745, 0.000163268, 4.65505e-05, 7.78764e-06, 1.2448e-06};
-float err_y_stat_ppg086[NPOINTS086] = {0.000156004, 4.78465e-05, 1.89656e-05, 5.06527e-06, 1.57247e-06};
-float err_y_syst_ppg086[NPOINTS086] = {0.000339391, 6.91015e-05, 1.9658e-05, 3.99712e-06, 7.87164e-07};
+float data_x_ppg086[NPOINTS086] = {1.69126, 2.19773, 2.70364};//, 3.3488, 4.37494};
+float data_y_ppg086[NPOINTS086] = {0.000609745, 0.000163268, 4.65505e-05};//, 7.78764e-06, 1.2448e-06};
+float err_y_stat_ppg086[NPOINTS086] = {0.000156004, 4.78465e-05, 1.89656e-05};//, 5.06527e-06, 1.57247e-06};
+float err_y_syst_ppg086[NPOINTS086] = {0.000339391, 6.91015e-05, 1.9658e-05};//, 3.99712e-06, 7.87164e-07};
 
 ///////////////////////////////////////////////////////////
 // PPG136 - Dd^3\sigma/dp^3 = (1/2pi pT) dN/dpT
@@ -419,14 +420,14 @@ void makePublishedSpectrum136()
 
 void combinePublications()
 {
-  float data_x[NPOINTS060 + NPOINTS136 + NPOINTS086] = {0.0};
-  float data_y[NPOINTS060 + NPOINTS136 + NPOINTS086] = {0.0};
-  float err_y_syst[NPOINTS060 + NPOINTS136 + NPOINTS086] = {0.0};
-  float err_y_stat[NPOINTS060 + NPOINTS136 + NPOINTS086] = {0.0};
+  float data_x[NPOINTS060 + NPOINTS086] = {0.0};
+  float data_y[NPOINTS060 + NPOINTS086] = {0.0};
+  float err_y_syst[NPOINTS060 + NPOINTS086] = {0.0};
+  float err_y_stat[NPOINTS060 + NPOINTS086] = {0.0};
 
-  float data_y_npf[NPOINTS060 + NPOINTS136 + NPOINTS086] = {0.0};
-  float err_y_syst_npf[NPOINTS060 + NPOINTS136 + NPOINTS086] = {0.0};
-  float err_y_stat_npf[NPOINTS060 + NPOINTS136 + NPOINTS086] = {0.0};
+  float data_y_npf[NPOINTS060 + NPOINTS086] = {0.0};
+  float err_y_syst_npf[NPOINTS060 + NPOINTS086] = {0.0};
+  float err_y_stat_npf[NPOINTS060 + NPOINTS086] = {0.0};
 
   for (int i = 0; i < NPOINTS060; i++)
   {
@@ -452,23 +453,25 @@ void combinePublications()
     err_y_syst_npf[i + NPOINTS060] = err_y_syst_ppg086[i] * 2 * TMath::Pi() * data_x_ppg086[i];
   }
 
-  for (int i = 0; i < NPOINTS136; i++)
-  {
-    data_x[i + NPOINTS060 + NPOINTS086] = data_x_ppg136[i];
-    data_y[i + NPOINTS060 + NPOINTS086] = data_y_ppg136[i];
-    err_y_stat[i + NPOINTS060 + NPOINTS086] = err_y_stat_ppg136[i];
-    err_y_syst[i + NPOINTS060 + NPOINTS086] = err_y_syst_ppg136[i];
+  /*
+    for (int i = 0; i < NPOINTS136; i++)
+    {
+      data_x[i + NPOINTS060 + NPOINTS086] = data_x_ppg136[i];
+      data_y[i + NPOINTS060 + NPOINTS086] = data_y_ppg136[i];
+      err_y_stat[i + NPOINTS060 + NPOINTS086] = err_y_stat_ppg136[i];
+      err_y_syst[i + NPOINTS060 + NPOINTS086] = err_y_syst_ppg136[i];
 
-    data_y_npf[i + NPOINTS060 + NPOINTS086] = data_y_ppg136[i] * 2 * TMath::Pi() * data_x_ppg136[i];
-    err_y_stat_npf[i + NPOINTS060 + NPOINTS086] = err_y_stat_ppg136[i] * 2 * TMath::Pi() * data_x_ppg136[i];
-    err_y_syst_npf[i + NPOINTS060 + NPOINTS086] = err_y_syst_ppg136[i] * 2 * TMath::Pi() * data_x_ppg136[i];
-  }
+      data_y_npf[i + NPOINTS060 + NPOINTS086] = data_y_ppg136[i] * 2 * TMath::Pi() * data_x_ppg136[i];
+      err_y_stat_npf[i + NPOINTS060 + NPOINTS086] = err_y_stat_ppg136[i] * 2 * TMath::Pi() * data_x_ppg136[i];
+      err_y_syst_npf[i + NPOINTS060 + NPOINTS086] = err_y_syst_ppg136[i] * 2 * TMath::Pi() * data_x_ppg136[i];
+    }
+    */
 
-  g_combined = new TGraphErrors(NPOINTS060 + NPOINTS136 + NPOINTS086, data_x, data_y, err_x, err_y_stat);
-  g_combined_npf = new TGraphErrors(NPOINTS060 + NPOINTS136 + NPOINTS086, data_x, data_y_npf, err_x, err_y_stat_npf);
+  g_combined = new TGraphErrors(NPOINTS060 + NPOINTS086, data_x, data_y, err_x, err_y_stat);
+  g_combined_npf = new TGraphErrors(NPOINTS060 + NPOINTS086, data_x, data_y_npf, err_x, err_y_stat_npf);
 
   //Now, make systematic boxes
-  for (int i = 0; i < NPOINTS060 + NPOINTS136 + NPOINTS086; i++)
+  for (int i = 0; i < NPOINTS060 + NPOINTS086; i++)
   {
     systematicErrorsCombined[i] = new TBox(data_x[i] - 0.15, data_y[i] - (err_y_syst[i] / 2.0), data_x[i] + 0.15, data_y[i] + (err_y_syst[i] / 2.0));
     systematicErrorsCombined[i]->SetLineColor(kBlack);
@@ -480,7 +483,11 @@ void combinePublications()
   }
 
   //Fit the resulting combined spectra with a modified Hagedorn function
-  f_combined_fit = new TF1("f_combined_fit", "[0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])", 3.25, 15.0);
+  f_combined_fit_npf = new TF1("f_combined_fit_npf", "2*TMath::Pi()*x*[0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])", 0, 18.0);
+  f_combined_fit_npf->SetParameters(13.0488, -0.191588, 0.0164036, 0.999159, 8.42105);
+  g_combined_npf->Fit(f_combined_fit_npf, "R");
+
+  f_combined_fit = new TF1("f_combined_fit", "2*TMath::Pi()*x*[0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])", 0, 18.0);
   f_combined_fit->SetParameters(13.0488, -0.191588, 0.0164036, 0.999159, 8.42105);
   g_combined->Fit(f_combined_fit, "R");
 }
@@ -656,10 +663,10 @@ void plotDataPublishedFit()
   g_060_spectrum->SetMarkerColor(kBlack);
   g_060_spectrum->Draw("P,same");
   //g_060_spectrum_var1->Draw("P,same");
-  g_060_spectrum_var2->Draw("P,same");
+  //g_060_spectrum_var2->Draw("P,same");
   f_published_060_spectrum_fit_extrapolated->Draw("same");
   //f_spectrum_fit_var1_extrapolated->Draw("same");
-  f_spectrum_fit_var2->Draw("same");
+  //f_spectrum_fit_var2->Draw("same");
 
   //f_spectrum_fit_var3_extrapolated->Draw("same");
   //f_spectrum_fit_var4->Draw("same");
@@ -748,6 +755,7 @@ void plotDataNoPhaseFactor()
   g_nlo_060_npf->SetLineStyle(7);
 
   g_combined_npf->Draw("P,same");
+  f_combined_fit_npf->Draw("same");
   //g_060_spectrum_npf->Draw("P,same");
   //g_136_spectrum_npf->Draw("P,same");
   //g_086_spectrum_npf->Draw("P,same");
@@ -769,7 +777,7 @@ void plotDataNoPhaseFactor()
     //systematicErrors_npf086[i]->Draw("same");
   }
 
-  for (int i = 0; i < NPOINTS086 + NPOINTS060 + NPOINTS136; i++)
+  for (int i = 0; i < NPOINTS086 + NPOINTS060; i++)
   {
     systematicErrors_npfCombined[i]->Draw("same");
   }
