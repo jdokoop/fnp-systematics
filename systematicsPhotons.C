@@ -34,6 +34,10 @@ TGraphErrors *g_086_spectrum_npf;
 TGraphErrors *g_136_spectrum;
 TGraphErrors *g_136_spectrum_npf;
 
+//Combining all published values
+TGraphErrors *g_combined;
+TGraphErrors *g_combined_npf;
+
 TF1 *f_published_060_spectrum_fit;
 TF1 *f_published_060_spectrum_fit_extrapolated;
 TF1 *f_published_060_spectrum_fit_extrapolated_npf;
@@ -46,6 +50,8 @@ TF1 *f_published_136_spectrum_fit;
 TF1 *f_published_136_spectrum_fit_extrapolated;
 TF1 *f_published_136_spectrum_fit_extrapolated_npf;
 
+TF1 *f_combined_fit;
+
 TBox *systematicErrors060[NPOINTS060];
 TBox *systematicErrors_npf060[NPOINTS060];
 
@@ -54,6 +60,9 @@ TBox *systematicErrors_npf086[NPOINTS086];
 
 TBox *systematicErrors136[NPOINTS136];
 TBox *systematicErrors_npf136[NPOINTS136];
+
+TBox *systematicErrorsCombined[NPOINTS136 + NPOINTS086 + NPOINTS060];
+TBox *systematicErrors_npfCombined[NPOINTS136 + NPOINTS086 + NPOINTS060];
 
 ///////////////////////////////////////////////////////////
 // PPG060 - Dd^3\sigma/dp^3 = (1/2pi pT) dN/dpT
@@ -248,452 +257,545 @@ TF1 *f_spectrum_fit_var4_extrapolated_npf;
 
 void makeNLO()
 {
-	g_nlo_136 = new TGraph(NPOINTSNLO136, data_x_nlo_136, data_y_nlo_136);
+  g_nlo_136 = new TGraph(NPOINTSNLO136, data_x_nlo_136, data_y_nlo_136);
 
-	//Multiply NLO calculation by the phase space factor 2pi x pT
-	for (int i = 0; i < NPOINTSNLO136; i++)
-	{
-		data_y_nlo_136[i] = 2 * TMath::Pi() * data_x_nlo_136[i] * data_y_nlo_136[i];
-	}
+  //Multiply NLO calculation by the phase space factor 2pi x pT
+  for (int i = 0; i < NPOINTSNLO136; i++)
+  {
+    data_y_nlo_136[i] = 2 * TMath::Pi() * data_x_nlo_136[i] * data_y_nlo_136[i];
+  }
 
-	g_nlo_136_npf = new TGraph(NPOINTSNLO136, data_x_nlo_136, data_y_nlo_136);
+  g_nlo_136_npf = new TGraph(NPOINTSNLO136, data_x_nlo_136, data_y_nlo_136);
 
-	g_nlo_060 = new TGraph(NPOINTSNLO060, data_x_nlo_060, data_y_nlo_060);
+  g_nlo_060 = new TGraph(NPOINTSNLO060, data_x_nlo_060, data_y_nlo_060);
 
-	//Multiply NLO calculation by the phase space factor 2pi x pT
-	//Also multiply by 1E-9 to make the units mb instead of pb
-	for (int i = 0; i < NPOINTSNLO060; i++)
-	{
-		data_y_nlo_060[i] = 1E-9 * 2 * TMath::Pi() * data_x_nlo_060[i] * data_y_nlo_060[i];
-	}
+  //Multiply NLO calculation by the phase space factor 2pi x pT
+  //Also multiply by 1E-9 to make the units mb instead of pb
+  for (int i = 0; i < NPOINTSNLO060; i++)
+  {
+    data_y_nlo_060[i] = 1E-9 * 2 * TMath::Pi() * data_x_nlo_060[i] * data_y_nlo_060[i];
+  }
 
-	g_nlo_060_npf = new TGraph(NPOINTSNLO060, data_x_nlo_060, data_y_nlo_060);
+  g_nlo_060_npf = new TGraph(NPOINTSNLO060, data_x_nlo_060, data_y_nlo_060);
 }
 
 
 void makePublishedSpectrum060()
 {
-	//Make spectrum with no phase space factor
-	float data_y_ppg060_npf[NPOINTS060];
-	float err_y_stat_ppg060_npf[NPOINTS060];
-	for (int i = 0; i < NPOINTS060; i++)
-	{
-		data_y_ppg060_npf[i] = 2 * TMath::Pi() * data_x_ppg060[i] * data_y_ppg060[i];
-		err_y_stat_ppg060_npf[i] = 2 * TMath::Pi() * data_x_ppg060[i] * err_y_stat_ppg060[i];
-	}
+  //Make spectrum with no phase space factor
+  float data_y_ppg060_npf[NPOINTS060];
+  float err_y_stat_ppg060_npf[NPOINTS060];
+  for (int i = 0; i < NPOINTS060; i++)
+  {
+    data_y_ppg060_npf[i] = 2 * TMath::Pi() * data_x_ppg060[i] * data_y_ppg060[i];
+    err_y_stat_ppg060_npf[i] = 2 * TMath::Pi() * data_x_ppg060[i] * err_y_stat_ppg060[i];
+  }
 
-	for (int i = 0; i < NPOINTS060; i++)
-	{
-		systematicErrors_npf060[i] = new TBox(data_x_ppg060[i] - 0.15, data_y_ppg060_npf[i] - (2 * TMath::Pi() * data_x_ppg060[i]*err_y_syst_ppg060[i] / 2.0), data_x_ppg060[i] + 0.15, data_y_ppg060_npf[i] + (2 * TMath::Pi() * data_x_ppg060[i]*err_y_syst_ppg060[i] / 2.0));
-		systematicErrors_npf060[i]->SetLineColor(kBlack);
-		systematicErrors_npf060[i]->SetFillStyle(0);
-	}
+  for (int i = 0; i < NPOINTS060; i++)
+  {
+    systematicErrors_npf060[i] = new TBox(data_x_ppg060[i] - 0.15, data_y_ppg060_npf[i] - (2 * TMath::Pi() * data_x_ppg060[i]*err_y_syst_ppg060[i] / 2.0), data_x_ppg060[i] + 0.15, data_y_ppg060_npf[i] + (2 * TMath::Pi() * data_x_ppg060[i]*err_y_syst_ppg060[i] / 2.0));
+    systematicErrors_npf060[i]->SetLineColor(kBlack);
+    systematicErrors_npf060[i]->SetFillStyle(0);
+  }
 
-	//Make normal spectrum
-	for (int i = 0; i < NPOINTS060; i++)
-	{
-		systematicErrors060[i] = new TBox(data_x_ppg060[i] - 0.15, data_y_ppg060[i] - (err_y_syst_ppg060[i] / 2.0), data_x_ppg060[i] + 0.15, data_y_ppg060[i] + (err_y_syst_ppg060[i] / 2.0));
-		systematicErrors060[i]->SetLineColor(kBlack);
-		systematicErrors060[i]->SetFillStyle(0);
-	}
+  //Make normal spectrum
+  for (int i = 0; i < NPOINTS060; i++)
+  {
+    systematicErrors060[i] = new TBox(data_x_ppg060[i] - 0.15, data_y_ppg060[i] - (err_y_syst_ppg060[i] / 2.0), data_x_ppg060[i] + 0.15, data_y_ppg060[i] + (err_y_syst_ppg060[i] / 2.0));
+    systematicErrors060[i]->SetLineColor(kBlack);
+    systematicErrors060[i]->SetFillStyle(0);
+  }
 
-	g_060_spectrum = new TGraphErrors(NPOINTS060, data_x_ppg060, data_y_ppg060, err_x, err_y_stat_ppg060);
-	g_060_spectrum_npf = new TGraphErrors(NPOINTS060, data_x_ppg060, data_y_ppg060_npf, err_x, err_y_stat_ppg060_npf);
+  g_060_spectrum = new TGraphErrors(NPOINTS060, data_x_ppg060, data_y_ppg060, err_x, err_y_stat_ppg060);
+  g_060_spectrum_npf = new TGraphErrors(NPOINTS060, data_x_ppg060, data_y_ppg060_npf, err_x, err_y_stat_ppg060_npf);
 
-	f_published_060_spectrum_fit = new TF1("f_published_060_spectrum_fit", "([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 3.25, 15.0);
-	f_published_060_spectrum_fit->SetParameters(13.0488, -0.191588, 0.0164036, 0.999159, 8.42105);
-	f_published_060_spectrum_fit->SetLineColor(kBlack);
+  f_published_060_spectrum_fit = new TF1("f_published_060_spectrum_fit", "([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 3.25, 15.0);
+  f_published_060_spectrum_fit->SetParameters(13.0488, -0.191588, 0.0164036, 0.999159, 8.42105);
+  f_published_060_spectrum_fit->SetLineColor(kBlack);
 
-	f_published_060_spectrum_fit_extrapolated = new TF1("f_published_060_spectrum_fit_extrapolated", "([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 0.0, 18.0);
-	f_published_060_spectrum_fit_extrapolated->SetParameters(f_published_060_spectrum_fit->GetParameter(0), f_published_060_spectrum_fit->GetParameter(1), f_published_060_spectrum_fit->GetParameter(2), f_published_060_spectrum_fit->GetParameter(3), f_published_060_spectrum_fit->GetParameter(4));
-	f_published_060_spectrum_fit_extrapolated->SetLineColor(kBlack);
+  f_published_060_spectrum_fit_extrapolated = new TF1("f_published_060_spectrum_fit_extrapolated", "([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 0.0, 18.0);
+  f_published_060_spectrum_fit_extrapolated->SetParameters(f_published_060_spectrum_fit->GetParameter(0), f_published_060_spectrum_fit->GetParameter(1), f_published_060_spectrum_fit->GetParameter(2), f_published_060_spectrum_fit->GetParameter(3), f_published_060_spectrum_fit->GetParameter(4));
+  f_published_060_spectrum_fit_extrapolated->SetLineColor(kBlack);
 
-	f_published_060_spectrum_fit_extrapolated_npf = new TF1("f_published_060_spectrum_fit_extrapolated_npf", "2*TMath::Pi()*x*([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 0.0, 18.0);
-	f_published_060_spectrum_fit_extrapolated_npf->SetParameters(f_published_060_spectrum_fit->GetParameter(0), f_published_060_spectrum_fit->GetParameter(1), f_published_060_spectrum_fit->GetParameter(2), f_published_060_spectrum_fit->GetParameter(3), f_published_060_spectrum_fit->GetParameter(4));
-	f_published_060_spectrum_fit_extrapolated_npf->SetLineColor(kBlack);
+  f_published_060_spectrum_fit_extrapolated_npf = new TF1("f_published_060_spectrum_fit_extrapolated_npf", "2*TMath::Pi()*x*([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 0.0, 18.0);
+  f_published_060_spectrum_fit_extrapolated_npf->SetParameters(f_published_060_spectrum_fit->GetParameter(0), f_published_060_spectrum_fit->GetParameter(1), f_published_060_spectrum_fit->GetParameter(2), f_published_060_spectrum_fit->GetParameter(3), f_published_060_spectrum_fit->GetParameter(4));
+  f_published_060_spectrum_fit_extrapolated_npf->SetLineColor(kBlack);
 }
 
 
 void makePublishedSpectrum086()
 {
-	//Make spectrum with no phase space factor
-	float data_y_ppg086_npf[NPOINTS086];
-	float err_y_stat_ppg086_npf[NPOINTS086];
-	for (int i = 0; i < NPOINTS086; i++)
-	{
-		data_y_ppg086_npf[i] = 2 * TMath::Pi() * data_x_ppg086[i] * data_y_ppg086[i];
-		err_y_stat_ppg086_npf[i] = 2 * TMath::Pi() * data_x_ppg086[i] * err_y_stat_ppg086[i];
-	}
+  //Make spectrum with no phase space factor
+  float data_y_ppg086_npf[NPOINTS086];
+  float err_y_stat_ppg086_npf[NPOINTS086];
+  for (int i = 0; i < NPOINTS086; i++)
+  {
+    data_y_ppg086_npf[i] = 2 * TMath::Pi() * data_x_ppg086[i] * data_y_ppg086[i];
+    err_y_stat_ppg086_npf[i] = 2 * TMath::Pi() * data_x_ppg086[i] * err_y_stat_ppg086[i];
+  }
 
-	for (int i = 0; i < NPOINTS086; i++)
-	{
-		systematicErrors_npf086[i] = new TBox(data_x_ppg086[i] - 0.15, data_y_ppg086_npf[i] - (2 * TMath::Pi() * data_x_ppg086[i]*err_y_syst_ppg086[i] / 2.0), data_x_ppg086[i] + 0.15, data_y_ppg086_npf[i] + (2 * TMath::Pi() * data_x_ppg086[i]*err_y_syst_ppg086[i] / 2.0));
-		systematicErrors_npf086[i]->SetLineColor(kBlack);
-		systematicErrors_npf086[i]->SetFillStyle(0);
-	}
+  for (int i = 0; i < NPOINTS086; i++)
+  {
+    systematicErrors_npf086[i] = new TBox(data_x_ppg086[i] - 0.15, data_y_ppg086_npf[i] - (2 * TMath::Pi() * data_x_ppg086[i]*err_y_syst_ppg086[i] / 2.0), data_x_ppg086[i] + 0.15, data_y_ppg086_npf[i] + (2 * TMath::Pi() * data_x_ppg086[i]*err_y_syst_ppg086[i] / 2.0));
+    systematicErrors_npf086[i]->SetLineColor(kBlack);
+    systematicErrors_npf086[i]->SetFillStyle(0);
+  }
 
-	//Make normal spectrum
-	for (int i = 0; i < NPOINTS086; i++)
-	{
-		systematicErrors086[i] = new TBox(data_x_ppg086[i] - 0.15, data_y_ppg086[i] - (err_y_syst_ppg086[i] / 2.0), data_x_ppg086[i] + 0.15, data_y_ppg086[i] + (err_y_syst_ppg086[i] / 2.0));
-		systematicErrors086[i]->SetLineColor(kBlack);
-		systematicErrors086[i]->SetFillStyle(0);
-	}
+  //Make normal spectrum
+  for (int i = 0; i < NPOINTS086; i++)
+  {
+    systematicErrors086[i] = new TBox(data_x_ppg086[i] - 0.15, data_y_ppg086[i] - (err_y_syst_ppg086[i] / 2.0), data_x_ppg086[i] + 0.15, data_y_ppg086[i] + (err_y_syst_ppg086[i] / 2.0));
+    systematicErrors086[i]->SetLineColor(kBlack);
+    systematicErrors086[i]->SetFillStyle(0);
+  }
 
-	g_086_spectrum = new TGraphErrors(NPOINTS086, data_x_ppg086, data_y_ppg086, err_x, err_y_stat_ppg086);
-	g_086_spectrum_npf = new TGraphErrors(NPOINTS086, data_x_ppg086, data_y_ppg086_npf, err_x, err_y_stat_ppg086_npf);
+  g_086_spectrum = new TGraphErrors(NPOINTS086, data_x_ppg086, data_y_ppg086, err_x, err_y_stat_ppg086);
+  g_086_spectrum_npf = new TGraphErrors(NPOINTS086, data_x_ppg086, data_y_ppg086_npf, err_x, err_y_stat_ppg086_npf);
 
-	f_published_086_spectrum_fit = new TF1("f_published_086_spectrum_fit", "([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 3.25, 15.0);
-	f_published_086_spectrum_fit->SetParameters(13.0488, -0.191588, 0.0164036, 0.999159, 8.42105);
-	f_published_086_spectrum_fit->SetLineColor(kBlack);
+  f_published_086_spectrum_fit = new TF1("f_published_086_spectrum_fit", "([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 3.25, 15.0);
+  f_published_086_spectrum_fit->SetParameters(13.0488, -0.191588, 0.0164036, 0.999159, 8.42105);
+  f_published_086_spectrum_fit->SetLineColor(kBlack);
 
-	f_published_086_spectrum_fit_extrapolated = new TF1("f_published_086_spectrum_fit_extrapolated", "([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 0.0, 18.0);
-	f_published_086_spectrum_fit_extrapolated->SetParameters(f_published_086_spectrum_fit->GetParameter(0), f_published_086_spectrum_fit->GetParameter(1), f_published_086_spectrum_fit->GetParameter(2), f_published_086_spectrum_fit->GetParameter(3), f_published_086_spectrum_fit->GetParameter(4));
-	f_published_086_spectrum_fit_extrapolated->SetLineColor(kBlack);
+  f_published_086_spectrum_fit_extrapolated = new TF1("f_published_086_spectrum_fit_extrapolated", "([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 0.0, 18.0);
+  f_published_086_spectrum_fit_extrapolated->SetParameters(f_published_086_spectrum_fit->GetParameter(0), f_published_086_spectrum_fit->GetParameter(1), f_published_086_spectrum_fit->GetParameter(2), f_published_086_spectrum_fit->GetParameter(3), f_published_086_spectrum_fit->GetParameter(4));
+  f_published_086_spectrum_fit_extrapolated->SetLineColor(kBlack);
 
-	f_published_086_spectrum_fit_extrapolated_npf = new TF1("f_published_086_spectrum_fit_extrapolated_npf", "2*TMath::Pi()*x*([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 0.0, 18.0);
-	f_published_086_spectrum_fit_extrapolated_npf->SetParameters(f_published_086_spectrum_fit->GetParameter(0), f_published_086_spectrum_fit->GetParameter(1), f_published_086_spectrum_fit->GetParameter(2), f_published_086_spectrum_fit->GetParameter(3), f_published_086_spectrum_fit->GetParameter(4));
-	f_published_086_spectrum_fit_extrapolated_npf->SetLineColor(kBlack);
+  f_published_086_spectrum_fit_extrapolated_npf = new TF1("f_published_086_spectrum_fit_extrapolated_npf", "2*TMath::Pi()*x*([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 0.0, 18.0);
+  f_published_086_spectrum_fit_extrapolated_npf->SetParameters(f_published_086_spectrum_fit->GetParameter(0), f_published_086_spectrum_fit->GetParameter(1), f_published_086_spectrum_fit->GetParameter(2), f_published_086_spectrum_fit->GetParameter(3), f_published_086_spectrum_fit->GetParameter(4));
+  f_published_086_spectrum_fit_extrapolated_npf->SetLineColor(kBlack);
 }
 
 
 void makePublishedSpectrum136()
 {
-	//Multiply each point by 1E-9 to convert the units from pb to mb, to match the other measurements
-	for (int i = 0; i < NPOINTS136; i++)
-	{
-		data_y_ppg136[i] = 1E-9 * data_y_ppg136[i];
-		err_y_syst_ppg136[i] = 1E-9 * err_y_syst_ppg136[i];
-		err_y_stat_ppg136[i] = 1E-9 * err_y_stat_ppg136[i];
-	}
+  //Multiply each point by 1E-9 to convert the units from pb to mb, to match the other measurements
+  for (int i = 0; i < NPOINTS136; i++)
+  {
+    data_y_ppg136[i] = 1E-9 * data_y_ppg136[i];
+    err_y_syst_ppg136[i] = 1E-9 * err_y_syst_ppg136[i];
+    err_y_stat_ppg136[i] = 1E-9 * err_y_stat_ppg136[i];
+  }
 
-	//Make spectrum with no phase space factor
-	float data_y_ppg136_npf[NPOINTS136];
-	float err_y_stat_ppg136_npf[NPOINTS136];
-	for (int i = 0; i < NPOINTS136; i++)
-	{
-		data_y_ppg136_npf[i] = 2 * TMath::Pi() * data_x_ppg136[i] * data_y_ppg136[i];
-		err_y_stat_ppg136_npf[i] = 2 * TMath::Pi() * data_x_ppg136[i] * err_y_stat_ppg136[i];
-	}
+  //Make spectrum with no phase space factor
+  float data_y_ppg136_npf[NPOINTS136];
+  float err_y_stat_ppg136_npf[NPOINTS136];
+  for (int i = 0; i < NPOINTS136; i++)
+  {
+    data_y_ppg136_npf[i] = 2 * TMath::Pi() * data_x_ppg136[i] * data_y_ppg136[i];
+    err_y_stat_ppg136_npf[i] = 2 * TMath::Pi() * data_x_ppg136[i] * err_y_stat_ppg136[i];
+  }
 
-	for (int i = 0; i < NPOINTS136; i++)
-	{
-		systematicErrors_npf136[i] = new TBox(data_x_ppg136[i] - 0.15, data_y_ppg136_npf[i] - (2 * TMath::Pi() * data_x_ppg136[i]*err_y_syst_ppg136[i] / 2.0), data_x_ppg136[i] + 0.15, data_y_ppg136_npf[i] + (2 * TMath::Pi() * data_x_ppg136[i]*err_y_syst_ppg136[i] / 2.0));
-		systematicErrors_npf136[i]->SetLineColor(kBlack);
-		systematicErrors_npf136[i]->SetFillStyle(0);
-	}
+  for (int i = 0; i < NPOINTS136; i++)
+  {
+    systematicErrors_npf136[i] = new TBox(data_x_ppg136[i] - 0.15, data_y_ppg136_npf[i] - (2 * TMath::Pi() * data_x_ppg136[i]*err_y_syst_ppg136[i] / 2.0), data_x_ppg136[i] + 0.15, data_y_ppg136_npf[i] + (2 * TMath::Pi() * data_x_ppg136[i]*err_y_syst_ppg136[i] / 2.0));
+    systematicErrors_npf136[i]->SetLineColor(kBlack);
+    systematicErrors_npf136[i]->SetFillStyle(0);
+  }
 
-	//Make normal spectrum
-	for (int i = 0; i < NPOINTS136; i++)
-	{
-		systematicErrors136[i] = new TBox(data_x_ppg136[i] - 0.15, data_y_ppg136[i] - (err_y_syst_ppg136[i] / 2.0), data_x_ppg136[i] + 0.15, data_y_ppg136[i] + (err_y_syst_ppg136[i] / 2.0));
-		systematicErrors136[i]->SetLineColor(kBlack);
-		systematicErrors136[i]->SetFillStyle(0);
-	}
+  //Make normal spectrum
+  for (int i = 0; i < NPOINTS136; i++)
+  {
+    systematicErrors136[i] = new TBox(data_x_ppg136[i] - 0.15, data_y_ppg136[i] - (err_y_syst_ppg136[i] / 2.0), data_x_ppg136[i] + 0.15, data_y_ppg136[i] + (err_y_syst_ppg136[i] / 2.0));
+    systematicErrors136[i]->SetLineColor(kBlack);
+    systematicErrors136[i]->SetFillStyle(0);
+  }
 
-	g_136_spectrum = new TGraphErrors(NPOINTS136, data_x_ppg136, data_y_ppg136, err_x, err_y_stat_ppg136);
-	g_136_spectrum_npf = new TGraphErrors(NPOINTS136, data_x_ppg136, data_y_ppg136_npf, err_x, err_y_stat_ppg136_npf);
+  g_136_spectrum = new TGraphErrors(NPOINTS136, data_x_ppg136, data_y_ppg136, err_x, err_y_stat_ppg136);
+  g_136_spectrum_npf = new TGraphErrors(NPOINTS136, data_x_ppg136, data_y_ppg136_npf, err_x, err_y_stat_ppg136_npf);
 
-	f_published_136_spectrum_fit = new TF1("f_published_136_spectrum_fit", "([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 3.25, 15.0);
-	f_published_136_spectrum_fit->SetParameters(13.0488, -0.191588, 0.0164036, 0.999159, 8.42105);
-	f_published_136_spectrum_fit->SetLineColor(kBlack);
+  f_published_136_spectrum_fit = new TF1("f_published_136_spectrum_fit", "([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 3.25, 15.0);
+  f_published_136_spectrum_fit->SetParameters(13.0488, -0.191588, 0.0164036, 0.999159, 8.42105);
+  f_published_136_spectrum_fit->SetLineColor(kBlack);
 
-	f_published_136_spectrum_fit_extrapolated = new TF1("f_published_136_spectrum_fit_extrapolated", "([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 0.0, 18.0);
-	f_published_136_spectrum_fit_extrapolated->SetParameters(f_published_136_spectrum_fit->GetParameter(0), f_published_136_spectrum_fit->GetParameter(1), f_published_136_spectrum_fit->GetParameter(2), f_published_136_spectrum_fit->GetParameter(3), f_published_136_spectrum_fit->GetParameter(4));
-	f_published_136_spectrum_fit_extrapolated->SetLineColor(kBlack);
+  f_published_136_spectrum_fit_extrapolated = new TF1("f_published_136_spectrum_fit_extrapolated", "([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 0.0, 18.0);
+  f_published_136_spectrum_fit_extrapolated->SetParameters(f_published_136_spectrum_fit->GetParameter(0), f_published_136_spectrum_fit->GetParameter(1), f_published_136_spectrum_fit->GetParameter(2), f_published_136_spectrum_fit->GetParameter(3), f_published_136_spectrum_fit->GetParameter(4));
+  f_published_136_spectrum_fit_extrapolated->SetLineColor(kBlack);
 
-	f_published_136_spectrum_fit_extrapolated_npf = new TF1("f_published_136_spectrum_fit_extrapolated_npf", "2*TMath::Pi()*x*([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 0.0, 18.0);
-	f_published_136_spectrum_fit_extrapolated_npf->SetParameters(f_published_136_spectrum_fit->GetParameter(0), f_published_136_spectrum_fit->GetParameter(1), f_published_136_spectrum_fit->GetParameter(2), f_published_136_spectrum_fit->GetParameter(3), f_published_136_spectrum_fit->GetParameter(4));
-	f_published_136_spectrum_fit_extrapolated_npf->SetLineColor(kBlack);
+  f_published_136_spectrum_fit_extrapolated_npf = new TF1("f_published_136_spectrum_fit_extrapolated_npf", "2*TMath::Pi()*x*([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 0.0, 18.0);
+  f_published_136_spectrum_fit_extrapolated_npf->SetParameters(f_published_136_spectrum_fit->GetParameter(0), f_published_136_spectrum_fit->GetParameter(1), f_published_136_spectrum_fit->GetParameter(2), f_published_136_spectrum_fit->GetParameter(3), f_published_136_spectrum_fit->GetParameter(4));
+  f_published_136_spectrum_fit_extrapolated_npf->SetLineColor(kBlack);
 }
 
+
+void combinePublications()
+{
+  float data_x[NPOINTS060 + NPOINTS136 + NPOINTS086] = {0.0};
+  float data_y[NPOINTS060 + NPOINTS136 + NPOINTS086] = {0.0};
+  float err_y_syst[NPOINTS060 + NPOINTS136 + NPOINTS086] = {0.0};
+  float err_y_stat[NPOINTS060 + NPOINTS136 + NPOINTS086] = {0.0};
+
+  float data_y_npf[NPOINTS060 + NPOINTS136 + NPOINTS086] = {0.0};
+  float err_y_syst_npf[NPOINTS060 + NPOINTS136 + NPOINTS086] = {0.0};
+  float err_y_stat_npf[NPOINTS060 + NPOINTS136 + NPOINTS086] = {0.0};
+
+  for (int i = 0; i < NPOINTS060; i++)
+  {
+    data_x[i] = data_x_ppg060[i];
+    data_y[i] = data_y_ppg060[i];
+    err_y_stat[i] = err_y_stat_ppg060[i];
+    err_y_syst[i] = err_y_syst_ppg060[i];
+
+    data_y_npf[i] = data_y_ppg060[i] * 2 * TMath::Pi() * data_x_ppg060[i];
+    err_y_stat_npf[i] = err_y_stat_ppg060[i] * 2 * TMath::Pi() * data_x_ppg060[i];
+    err_y_syst_npf[i] = err_y_syst_ppg060[i] * 2 * TMath::Pi() * data_x_ppg060[i];
+  }
+
+  for (int i = 0; i < NPOINTS086; i++)
+  {
+    data_x[i + NPOINTS060] = data_x_ppg086[i];
+    data_y[i + NPOINTS060] = data_y_ppg086[i];
+    err_y_stat[i + NPOINTS060] = err_y_stat_ppg086[i];
+    err_y_syst[i + NPOINTS060] = err_y_syst_ppg086[i];
+
+    data_y_npf[i + NPOINTS060] = data_y_ppg086[i] * 2 * TMath::Pi() * data_x_ppg086[i];
+    err_y_stat_npf[i + NPOINTS060] = err_y_stat_ppg086[i] * 2 * TMath::Pi() * data_x_ppg086[i];
+    err_y_syst_npf[i + NPOINTS060] = err_y_syst_ppg086[i] * 2 * TMath::Pi() * data_x_ppg086[i];
+  }
+
+  for (int i = 0; i < NPOINTS136; i++)
+  {
+    data_x[i + NPOINTS060 + NPOINTS086] = data_x_ppg136[i];
+    data_y[i + NPOINTS060 + NPOINTS086] = data_y_ppg136[i];
+    err_y_stat[i + NPOINTS060 + NPOINTS086] = err_y_stat_ppg136[i];
+    err_y_syst[i + NPOINTS060 + NPOINTS086] = err_y_syst_ppg136[i];
+
+    data_y_npf[i + NPOINTS060 + NPOINTS086] = data_y_ppg136[i] * 2 * TMath::Pi() * data_x_ppg136[i];
+    err_y_stat_npf[i + NPOINTS060 + NPOINTS086] = err_y_stat_ppg136[i] * 2 * TMath::Pi() * data_x_ppg136[i];
+    err_y_syst_npf[i + NPOINTS060 + NPOINTS086] = err_y_syst_ppg136[i] * 2 * TMath::Pi() * data_x_ppg136[i];
+  }
+
+  g_combined = new TGraphErrors(NPOINTS060 + NPOINTS136 + NPOINTS086, data_x, data_y, err_x, err_y_stat);
+  g_combined_npf = new TGraphErrors(NPOINTS060 + NPOINTS136 + NPOINTS086, data_x, data_y_npf, err_x, err_y_stat_npf);
+
+  //Now, make systematic boxes
+  for (int i = 0; i < NPOINTS060 + NPOINTS136 + NPOINTS086; i++)
+  {
+    systematicErrorsCombined[i] = new TBox(data_x[i] - 0.15, data_y[i] - (err_y_syst[i] / 2.0), data_x[i] + 0.15, data_y[i] + (err_y_syst[i] / 2.0));
+    systematicErrorsCombined[i]->SetLineColor(kBlack);
+    systematicErrorsCombined[i]->SetFillStyle(0);
+
+    systematicErrors_npfCombined[i] = new TBox(data_x[i] - 0.15, data_y_npf[i] - (err_y_syst_npf[i] / 2.0), data_x[i] + 0.15, data_y_npf[i] + (err_y_syst_npf[i] / 2.0));
+    systematicErrors_npfCombined[i]->SetLineColor(kBlack);
+    systematicErrors_npfCombined[i]->SetFillStyle(0);
+  }
+
+  //Fit the resulting combined spectra with a modified Hagedorn function
+  f_combined_fit = new TF1("f_combined_fit", "[0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])", 3.25, 15.0);
+  f_combined_fit->SetParameters(13.0488, -0.191588, 0.0164036, 0.999159, 8.42105);
+  g_combined->Fit(f_combined_fit, "R");
+}
 
 
 void defineVariation1()
 {
-	//Define the seventh point in the spectrum as a tipping point, and tilt clockwise about that point by an amount proportional to the point's pT
-	float data_y_ppg060_var1[NPOINTS060];
-	int tippingPointIndex = 6;
-	float pTextreme = data_x_ppg060[0];
-	float pT0 = data_x_ppg060[tippingPointIndex];
+  //Define the seventh point in the spectrum as a tipping point, and tilt clockwise about that point by an amount proportional to the point's pT
+  float data_y_ppg060_var1[NPOINTS060];
+  int tippingPointIndex = 6;
+  float pTextreme = data_x_ppg060[0];
+  float pT0 = data_x_ppg060[tippingPointIndex];
 
-	for (int i = 0; i < NPOINTS060; i++)
-	{
-		float scaling = (err_y_syst_ppg060[i] / 2.0) * ((data_x_ppg060[i] - pT0) / (pTextreme - pT0));
-		data_y_ppg060_var1[i] = data_y_ppg060[i] + scaling;
-	}
+  for (int i = 0; i < NPOINTS060; i++)
+  {
+    float scaling = (err_y_syst_ppg060[i] / 2.0) * ((data_x_ppg060[i] - pT0) / (pTextreme - pT0));
+    data_y_ppg060_var1[i] = data_y_ppg060[i] + scaling;
+  }
 
-	g_060_spectrum_var1 = new TGraphErrors(NPOINTS060, data_x_ppg060, data_y_ppg060_var1, err_x, err_y_stat_ppg060);
-	g_060_spectrum_var1->SetMarkerColor(kRed);
-	g_060_spectrum_var1->SetLineColor(kRed);
-	g_060_spectrum_var1->SetMarkerStyle(20);
-	g_060_spectrum_var1->SetMarkerSize(0.7);
+  g_060_spectrum_var1 = new TGraphErrors(NPOINTS060, data_x_ppg060, data_y_ppg060_var1, err_x, err_y_stat_ppg060);
+  g_060_spectrum_var1->SetMarkerColor(kRed);
+  g_060_spectrum_var1->SetLineColor(kRed);
+  g_060_spectrum_var1->SetMarkerStyle(20);
+  g_060_spectrum_var1->SetMarkerSize(0.7);
 
-	//Fit the data with a modified Hagedorn function
-	f_spectrum_fit_var1 = new TF1("f_spectrum_fit_var1", "[0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])", 3.25, 15.0);
-	f_spectrum_fit_var1->SetParameters(13.0488, -0.191588, 0.0164036, 0.999159, 8.42105);
-	g_060_spectrum_var1->Fit(f_spectrum_fit_var1, "Q0R");
+  //Fit the data with a modified Hagedorn function
+  f_spectrum_fit_var1 = new TF1("f_spectrum_fit_var1", "[0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])", 3.25, 15.0);
+  f_spectrum_fit_var1->SetParameters(13.0488, -0.191588, 0.0164036, 0.999159, 8.42105);
+  g_060_spectrum_var1->Fit(f_spectrum_fit_var1, "Q0R");
 
-	f_spectrum_fit_var1_extrapolated = new TF1("f_spectrum_fit_var1_extrapolated", "([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 0.0, 18.0);
-	f_spectrum_fit_var1_extrapolated->SetParameters(f_spectrum_fit_var1->GetParameter(0), f_spectrum_fit_var1->GetParameter(1), f_spectrum_fit_var1->GetParameter(2), f_spectrum_fit_var1->GetParameter(3), f_spectrum_fit_var1->GetParameter(4));
+  f_spectrum_fit_var1_extrapolated = new TF1("f_spectrum_fit_var1_extrapolated", "([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 0.0, 18.0);
+  f_spectrum_fit_var1_extrapolated->SetParameters(f_spectrum_fit_var1->GetParameter(0), f_spectrum_fit_var1->GetParameter(1), f_spectrum_fit_var1->GetParameter(2), f_spectrum_fit_var1->GetParameter(3), f_spectrum_fit_var1->GetParameter(4));
 
-	f_spectrum_fit_var1_extrapolated_npf = new TF1("f_spectrum_fit_var1_extrapolated_npf", "2*TMath::Pi()*x*(([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])))", 0.0, 18.0);
-	f_spectrum_fit_var1_extrapolated_npf->SetParameters(f_spectrum_fit_var1->GetParameter(0), f_spectrum_fit_var1->GetParameter(1), f_spectrum_fit_var1->GetParameter(2), f_spectrum_fit_var1->GetParameter(3), f_spectrum_fit_var1->GetParameter(4));
+  f_spectrum_fit_var1_extrapolated_npf = new TF1("f_spectrum_fit_var1_extrapolated_npf", "2*TMath::Pi()*x*(([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])))", 0.0, 18.0);
+  f_spectrum_fit_var1_extrapolated_npf->SetParameters(f_spectrum_fit_var1->GetParameter(0), f_spectrum_fit_var1->GetParameter(1), f_spectrum_fit_var1->GetParameter(2), f_spectrum_fit_var1->GetParameter(3), f_spectrum_fit_var1->GetParameter(4));
 
-	//Spectrum without phase space factor
-	float data_y_ppg060_npf[NPOINTS060];
+  //Spectrum without phase space factor
+  float data_y_ppg060_npf[NPOINTS060];
 
-	for (int i = 0; i < NPOINTS060; i++)
-	{
-		data_y_ppg060_npf[i] = 2 * TMath::Pi() * data_x_ppg060[i] * data_y_ppg060_var1[i];
-	}
+  for (int i = 0; i < NPOINTS060; i++)
+  {
+    data_y_ppg060_npf[i] = 2 * TMath::Pi() * data_x_ppg060[i] * data_y_ppg060_var1[i];
+  }
 
-	g_060_spectrum_var1_npf = new TGraphErrors(NPOINTS060, data_x_ppg060, data_y_ppg060_npf, err_x, err_y_stat_ppg060);
-	g_060_spectrum_var1_npf->SetMarkerColor(kRed);
-	g_060_spectrum_var1_npf->SetLineColor(kRed);
-	g_060_spectrum_var1_npf->SetMarkerStyle(20);
-	g_060_spectrum_var1_npf->SetMarkerSize(0.7);
+  g_060_spectrum_var1_npf = new TGraphErrors(NPOINTS060, data_x_ppg060, data_y_ppg060_npf, err_x, err_y_stat_ppg060);
+  g_060_spectrum_var1_npf->SetMarkerColor(kRed);
+  g_060_spectrum_var1_npf->SetLineColor(kRed);
+  g_060_spectrum_var1_npf->SetMarkerStyle(20);
+  g_060_spectrum_var1_npf->SetMarkerSize(0.7);
 }
 
 
 void defineVariation2()
 {
-	//Define the seventh point in the spectrum as a tipping point, and tilt clockwise about that point by an amount proportional to the point's pT
-	float data_y_ppg060_var2[NPOINTS060];
-	int tippingPointIndex = 6;
-	float pTextreme = data_x_ppg060[0];
-	float pT0 = data_x_ppg060[tippingPointIndex];
+  //Define the seventh point in the spectrum as a tipping point, and tilt clockwise about that point by an amount proportional to the point's pT
+  float data_y_ppg060_var2[NPOINTS060];
+  int tippingPointIndex = 6;
+  float pTextreme = data_x_ppg060[0];
+  float pT0 = data_x_ppg060[tippingPointIndex];
 
-	for (int i = 0; i < NPOINTS060; i++)
-	{
-		float scaling = -1 * (err_y_syst_ppg060[i] / 2.0) * ((data_x_ppg060[i] - pT0) / (pTextreme - pT0));
-		data_y_ppg060_var2[i] = data_y_ppg060[i] + scaling;
-	}
+  for (int i = 0; i < NPOINTS060; i++)
+  {
+    float scaling = -1 * (err_y_syst_ppg060[i] / 2.0) * ((data_x_ppg060[i] - pT0) / (pTextreme - pT0));
+    data_y_ppg060_var2[i] = data_y_ppg060[i] + scaling;
+  }
 
-	g_060_spectrum_var2 = new TGraphErrors(NPOINTS060, data_x_ppg060, data_y_ppg060_var2, err_x, err_y_stat_ppg060);
-	g_060_spectrum_var2->SetMarkerColor(kBlue);
-	g_060_spectrum_var2->SetLineColor(kBlue);
-	g_060_spectrum_var2->SetMarkerStyle(20);
-	g_060_spectrum_var2->SetMarkerSize(0.7);
+  g_060_spectrum_var2 = new TGraphErrors(NPOINTS060, data_x_ppg060, data_y_ppg060_var2, err_x, err_y_stat_ppg060);
+  g_060_spectrum_var2->SetMarkerColor(kBlue);
+  g_060_spectrum_var2->SetLineColor(kBlue);
+  g_060_spectrum_var2->SetMarkerStyle(20);
+  g_060_spectrum_var2->SetMarkerSize(0.7);
 
-	//Fit the data with a modified Hagedorn function
-	f_spectrum_fit_var2 = new TF1("f_spectrum_fit_var2", "[0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])", 0, 15.0);
-	//f_spectrum_fit_var2->SetParameters(26.1, 2.0, 2.5, 0.28, 5.89);
-	f_spectrum_fit_var2->SetParameters(5.03, -0.45, 0.014, 0.27, 4.72);
-	g_060_spectrum_var2->Fit(f_spectrum_fit_var2, "Q0R");
-	f_spectrum_fit_var2->SetLineColor(kBlue);
+  //Fit the data with a modified Hagedorn function
+  f_spectrum_fit_var2 = new TF1("f_spectrum_fit_var2", "[0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])", 0, 15.0);
+  //f_spectrum_fit_var2->SetParameters(26.1, 2.0, 2.5, 0.28, 5.89);
+  f_spectrum_fit_var2->SetParameters(5.03, -0.45, 0.014, 0.27, 4.72);
+  g_060_spectrum_var2->Fit(f_spectrum_fit_var2, "Q0R");
+  f_spectrum_fit_var2->SetLineColor(kBlue);
 
-	f_spectrum_fit_var2_extrapolated = new TF1("f_spectrum_fit_var2_extrapolated", "([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 0.0, 18.0);
-	f_spectrum_fit_var2_extrapolated->SetParameters(f_spectrum_fit_var2->GetParameter(0), f_spectrum_fit_var2->GetParameter(1), f_spectrum_fit_var2->GetParameter(2), f_spectrum_fit_var2->GetParameter(3), f_spectrum_fit_var2->GetParameter(4));
-	f_spectrum_fit_var2_extrapolated->SetLineColor(kBlue);
+  f_spectrum_fit_var2_extrapolated = new TF1("f_spectrum_fit_var2_extrapolated", "([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 0.0, 18.0);
+  f_spectrum_fit_var2_extrapolated->SetParameters(f_spectrum_fit_var2->GetParameter(0), f_spectrum_fit_var2->GetParameter(1), f_spectrum_fit_var2->GetParameter(2), f_spectrum_fit_var2->GetParameter(3), f_spectrum_fit_var2->GetParameter(4));
+  f_spectrum_fit_var2_extrapolated->SetLineColor(kBlue);
 
-	f_spectrum_fit_var2_extrapolated_npf = new TF1("f_spectrum_fit_var2_extrapolated_npf", "2*TMath::Pi()*x*([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 0.0, 18.0);
-	f_spectrum_fit_var2_extrapolated_npf->SetParameters(f_spectrum_fit_var2->GetParameter(0), f_spectrum_fit_var2->GetParameter(1), f_spectrum_fit_var2->GetParameter(2), f_spectrum_fit_var2->GetParameter(3), f_spectrum_fit_var2->GetParameter(4));
-	f_spectrum_fit_var2_extrapolated_npf->SetLineColor(kBlue);
+  f_spectrum_fit_var2_extrapolated_npf = new TF1("f_spectrum_fit_var2_extrapolated_npf", "2*TMath::Pi()*x*([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 0.0, 18.0);
+  f_spectrum_fit_var2_extrapolated_npf->SetParameters(f_spectrum_fit_var2->GetParameter(0), f_spectrum_fit_var2->GetParameter(1), f_spectrum_fit_var2->GetParameter(2), f_spectrum_fit_var2->GetParameter(3), f_spectrum_fit_var2->GetParameter(4));
+  f_spectrum_fit_var2_extrapolated_npf->SetLineColor(kBlue);
 
-	//Spectrum without phase space factor
-	float data_y_ppg060_npf[NPOINTS060];
+  //Spectrum without phase space factor
+  float data_y_ppg060_npf[NPOINTS060];
 
-	for (int i = 0; i < NPOINTS060; i++)
-	{
-		data_y_ppg060_npf[i] = 2 * TMath::Pi() * data_x_ppg060[i] * data_y_ppg060_var2[i];
-	}
+  for (int i = 0; i < NPOINTS060; i++)
+  {
+    data_y_ppg060_npf[i] = 2 * TMath::Pi() * data_x_ppg060[i] * data_y_ppg060_var2[i];
+  }
 
-	g_060_spectrum_var2_npf = new TGraphErrors(NPOINTS060, data_x_ppg060, data_y_ppg060_npf, err_x, err_y_stat_ppg060);
-	g_060_spectrum_var2_npf->SetMarkerColor(kBlue);
-	g_060_spectrum_var2_npf->SetLineColor(kBlue);
-	g_060_spectrum_var2_npf->SetMarkerStyle(20);
-	g_060_spectrum_var2_npf->SetMarkerSize(0.7);
+  g_060_spectrum_var2_npf = new TGraphErrors(NPOINTS060, data_x_ppg060, data_y_ppg060_npf, err_x, err_y_stat_ppg060);
+  g_060_spectrum_var2_npf->SetMarkerColor(kBlue);
+  g_060_spectrum_var2_npf->SetLineColor(kBlue);
+  g_060_spectrum_var2_npf->SetMarkerStyle(20);
+  g_060_spectrum_var2_npf->SetMarkerSize(0.7);
 }
 
 
 void defineVariation3()
 {
-	//Fit published spectrum with a Tsallis functional form
-	f_spectrum_fit_var3 = new TF1("f_spectrum_fit_var3", "[0]*(([1]-1)*([1]-1))/(([1]*[2] + 10.0*([1] - 1))*([1]*[2] + 10.0)) * pow(([1]*[2] + TMath::Sqrt(10.0*10.0 + x*x))/([1]*[2]+10.0),-1*[1])", 0, 18.0);
-	f_spectrum_fit_var3->SetParameter(0, 1.3);
-	f_spectrum_fit_var3->SetParameter(1, 5.5);
-	f_spectrum_fit_var3->SetParameter(2, 0.001);
-	g_060_spectrum->Fit(f_spectrum_fit_var3, "Q0R");
-	f_spectrum_fit_var3->SetLineColor(kOrange - 3);
+  //Fit published spectrum with a Tsallis functional form
+  f_spectrum_fit_var3 = new TF1("f_spectrum_fit_var3", "[0]*(([1]-1)*([1]-1))/(([1]*[2] + 10.0*([1] - 1))*([1]*[2] + 10.0)) * pow(([1]*[2] + TMath::Sqrt(10.0*10.0 + x*x))/([1]*[2]+10.0),-1*[1])", 0, 18.0);
+  f_spectrum_fit_var3->SetParameter(0, 1.3);
+  f_spectrum_fit_var3->SetParameter(1, 5.5);
+  f_spectrum_fit_var3->SetParameter(2, 0.001);
+  g_060_spectrum->Fit(f_spectrum_fit_var3, "Q0R");
+  f_spectrum_fit_var3->SetLineColor(kOrange - 3);
 
-	f_spectrum_fit_var3_extrapolated = new TF1("f_spectrum_fit_var3_extrapolated", "([0]*(([1]-1)*([1]-1))/(([1]*[2] + 10.0*([1] - 1))*([1]*[2] + 10.0)) * pow(([1]*[2] + TMath::Sqrt(10.0*10.0 + x*x))/([1]*[2]+10.0),-1*[1]))", 0.0, 18.0);
-	f_spectrum_fit_var3_extrapolated->SetParameters(f_spectrum_fit_var3->GetParameter(0), f_spectrum_fit_var3->GetParameter(1), f_spectrum_fit_var3->GetParameter(2));
-	f_spectrum_fit_var3_extrapolated->SetLineColor(kOrange - 3);
+  f_spectrum_fit_var3_extrapolated = new TF1("f_spectrum_fit_var3_extrapolated", "([0]*(([1]-1)*([1]-1))/(([1]*[2] + 10.0*([1] - 1))*([1]*[2] + 10.0)) * pow(([1]*[2] + TMath::Sqrt(10.0*10.0 + x*x))/([1]*[2]+10.0),-1*[1]))", 0.0, 18.0);
+  f_spectrum_fit_var3_extrapolated->SetParameters(f_spectrum_fit_var3->GetParameter(0), f_spectrum_fit_var3->GetParameter(1), f_spectrum_fit_var3->GetParameter(2));
+  f_spectrum_fit_var3_extrapolated->SetLineColor(kOrange - 3);
 
-	f_spectrum_fit_var3_extrapolated_npf = new TF1("f_spectrum_fit_var3_extrapolated_npf", "2*TMath::Pi()*x*(([0]*(([1]-1)*([1]-1))/(([1]*[2] + 10.0*([1] - 1))*([1]*[2] + 10.0)) * pow(([1]*[2] + TMath::Sqrt(10.0*10.0 + x*x))/([1]*[2]+10.0),-1*[1])))", 0.0, 18.0);
-	f_spectrum_fit_var3_extrapolated_npf->SetParameters(f_spectrum_fit_var3->GetParameter(0), f_spectrum_fit_var3->GetParameter(1), f_spectrum_fit_var3->GetParameter(2));
-	f_spectrum_fit_var3_extrapolated_npf->SetLineColor(kOrange - 3);
+  f_spectrum_fit_var3_extrapolated_npf = new TF1("f_spectrum_fit_var3_extrapolated_npf", "2*TMath::Pi()*x*(([0]*(([1]-1)*([1]-1))/(([1]*[2] + 10.0*([1] - 1))*([1]*[2] + 10.0)) * pow(([1]*[2] + TMath::Sqrt(10.0*10.0 + x*x))/([1]*[2]+10.0),-1*[1])))", 0.0, 18.0);
+  f_spectrum_fit_var3_extrapolated_npf->SetParameters(f_spectrum_fit_var3->GetParameter(0), f_spectrum_fit_var3->GetParameter(1), f_spectrum_fit_var3->GetParameter(2));
+  f_spectrum_fit_var3_extrapolated_npf->SetLineColor(kOrange - 3);
 }
 
 
 void defineVariation4()
 {
-	//Fit published spectrum with a Tsallis functional form
-	f_spectrum_fit_var4 = new TF1("f_spectrum_fit_var4", "[0]*(([1]-1)*([1]-1))/(([1]*[2] + 0.53*([1] - 1))*([1]*[2] + 0.53)) * pow(([1]*[2] + TMath::Sqrt(0.53*0.53 + x*x))/([1]*[2]+0.53),-1*[1])", 0, 18.0);
-	f_spectrum_fit_var4->SetParameter(0, 1.3);
-	f_spectrum_fit_var4->SetParameter(1, 5.5);
-	f_spectrum_fit_var4->SetParameter(2, 0.001);
-	g_060_spectrum->Fit(f_spectrum_fit_var4, "Q0R");
-	f_spectrum_fit_var4->SetLineColor(kSpring - 6);
+  //Fit published spectrum with a Tsallis functional form
+  f_spectrum_fit_var4 = new TF1("f_spectrum_fit_var4", "[0]*(([1]-1)*([1]-1))/(([1]*[2] + 0.53*([1] - 1))*([1]*[2] + 0.53)) * pow(([1]*[2] + TMath::Sqrt(0.53*0.53 + x*x))/([1]*[2]+0.53),-1*[1])", 0, 18.0);
+  f_spectrum_fit_var4->SetParameter(0, 1.3);
+  f_spectrum_fit_var4->SetParameter(1, 5.5);
+  f_spectrum_fit_var4->SetParameter(2, 0.001);
+  g_060_spectrum->Fit(f_spectrum_fit_var4, "Q0R");
+  f_spectrum_fit_var4->SetLineColor(kSpring - 6);
 
-	f_spectrum_fit_var4_extrapolated = new TF1("f_spectrum_fit_var4_extrapolated", "([0]*(([1]-1)*([1]-1))/(([1]*[2] + 0.53*([1] - 1))*([1]*[2] + 0.53)) * pow(([1]*[2] + TMath::Sqrt(0.53*0.53 + x*x))/([1]*[2]+0.53),-1*[1]))", 0.0, 18.0);
-	f_spectrum_fit_var4_extrapolated->SetParameters(f_spectrum_fit_var4->GetParameter(0), f_spectrum_fit_var4->GetParameter(1), f_spectrum_fit_var4->GetParameter(2));
-	f_spectrum_fit_var4_extrapolated->SetLineColor(kSpring - 6);
+  f_spectrum_fit_var4_extrapolated = new TF1("f_spectrum_fit_var4_extrapolated", "([0]*(([1]-1)*([1]-1))/(([1]*[2] + 0.53*([1] - 1))*([1]*[2] + 0.53)) * pow(([1]*[2] + TMath::Sqrt(0.53*0.53 + x*x))/([1]*[2]+0.53),-1*[1]))", 0.0, 18.0);
+  f_spectrum_fit_var4_extrapolated->SetParameters(f_spectrum_fit_var4->GetParameter(0), f_spectrum_fit_var4->GetParameter(1), f_spectrum_fit_var4->GetParameter(2));
+  f_spectrum_fit_var4_extrapolated->SetLineColor(kSpring - 6);
 
-	f_spectrum_fit_var4_extrapolated_npf = new TF1("f_spectrum_fit_var4_extrapolated_npf", "2*TMath::Pi()*x*(([0]*(([1]-1)*([1]-1))/(([1]*[2] + 0.53*([1] - 1))*([1]*[2] + 0.53)) * pow(([1]*[2] + TMath::Sqrt(0.53*0.53 + x*x))/([1]*[2]+0.53),-1*[1])))", 0.0, 18.0);
-	f_spectrum_fit_var4_extrapolated_npf->SetParameters(f_spectrum_fit_var4->GetParameter(0), f_spectrum_fit_var4->GetParameter(1), f_spectrum_fit_var4->GetParameter(2));
-	f_spectrum_fit_var4_extrapolated_npf->SetLineColor(kSpring - 6);
+  f_spectrum_fit_var4_extrapolated_npf = new TF1("f_spectrum_fit_var4_extrapolated_npf", "2*TMath::Pi()*x*(([0]*(([1]-1)*([1]-1))/(([1]*[2] + 0.53*([1] - 1))*([1]*[2] + 0.53)) * pow(([1]*[2] + TMath::Sqrt(0.53*0.53 + x*x))/([1]*[2]+0.53),-1*[1])))", 0.0, 18.0);
+  f_spectrum_fit_var4_extrapolated_npf->SetParameters(f_spectrum_fit_var4->GetParameter(0), f_spectrum_fit_var4->GetParameter(1), f_spectrum_fit_var4->GetParameter(2));
+  f_spectrum_fit_var4_extrapolated_npf->SetLineColor(kSpring - 6);
 }
 
 
 void plotDataPublishedFit()
 {
-	TCanvas *c = new TCanvas("c", "PPG036 Direct Photon Spectrum + Hagedorn Fit", 700, 700);
-	c->SetLogy();
+  TCanvas *c = new TCanvas("c", "PPG036 Direct Photon Spectrum + Hagedorn Fit", 700, 700);
+  c->SetLogy();
 
-	TH1F *hTemplate = new TH1F("hTemplate", "hTemplate", 100, 0, 20);
-	hTemplate->SetTitle("");
-	hTemplate->GetXaxis()->SetTitleFont(62);
-	hTemplate->GetXaxis()->SetLabelFont(62);
-	hTemplate->GetXaxis()->SetRangeUser(0, 20);
-	hTemplate->GetYaxis()->SetTitleFont(62);
-	hTemplate->GetYaxis()->SetLabelFont(62);
-	hTemplate->GetXaxis()->SetTitle("p_{T} [GeV/c]");
-	hTemplate->GetYaxis()->SetTitle("(1/2#pi p_{T}) dN/dp_{T}");
-	hTemplate->GetYaxis()->SetRangeUser(1e-10, 10);
-	hTemplate->Draw();
+  TH1F *hTemplate = new TH1F("hTemplate", "hTemplate", 100, 0, 20);
+  hTemplate->SetTitle("");
+  hTemplate->GetXaxis()->SetTitleFont(62);
+  hTemplate->GetXaxis()->SetLabelFont(62);
+  hTemplate->GetXaxis()->SetRangeUser(0, 20);
+  hTemplate->GetYaxis()->SetTitleFont(62);
+  hTemplate->GetYaxis()->SetLabelFont(62);
+  hTemplate->GetXaxis()->SetTitle("p_{T} [GeV/c]");
+  hTemplate->GetYaxis()->SetTitle("(1/2#pi p_{T}) dN/dp_{T}");
+  hTemplate->GetYaxis()->SetRangeUser(1e-10, 10);
+  hTemplate->Draw();
 
 
-	g_060_spectrum->SetTitle("");
-	g_060_spectrum->GetXaxis()->SetTitleFont(62);
-	g_060_spectrum->GetXaxis()->SetLabelFont(62);
-	g_060_spectrum->GetXaxis()->SetRangeUser(0, 18);
-	g_060_spectrum->GetYaxis()->SetTitleFont(62);
-	g_060_spectrum->GetYaxis()->SetLabelFont(62);
-	g_060_spectrum->GetXaxis()->SetTitle("p_{T} [GeV/c]");
-	g_060_spectrum->GetYaxis()->SetTitle("(1/2#pi p_{T}) dN/dp_{T}");
-	g_060_spectrum->GetYaxis()->SetRangeUser(1e-10, 5e-5);
-	g_060_spectrum->SetMarkerStyle(20);
-	g_060_spectrum->SetMarkerSize(0.8);
-	g_060_spectrum->SetMarkerColor(kBlack);
-	g_060_spectrum->Draw("P,same");
-	//g_060_spectrum_var1->Draw("P,same");
-	g_060_spectrum_var2->Draw("P,same");
-	f_published_060_spectrum_fit_extrapolated->Draw("same");
-	//f_spectrum_fit_var1_extrapolated->Draw("same");
-	f_spectrum_fit_var2->Draw("same");
+  g_060_spectrum->SetTitle("");
+  g_060_spectrum->GetXaxis()->SetTitleFont(62);
+  g_060_spectrum->GetXaxis()->SetLabelFont(62);
+  g_060_spectrum->GetXaxis()->SetRangeUser(0, 18);
+  g_060_spectrum->GetYaxis()->SetTitleFont(62);
+  g_060_spectrum->GetYaxis()->SetLabelFont(62);
+  g_060_spectrum->GetXaxis()->SetTitle("p_{T} [GeV/c]");
+  g_060_spectrum->GetYaxis()->SetTitle("(1/2#pi p_{T}) dN/dp_{T}");
+  g_060_spectrum->GetYaxis()->SetRangeUser(1e-10, 5e-5);
+  g_060_spectrum->SetMarkerStyle(20);
+  g_060_spectrum->SetMarkerSize(0.8);
+  g_060_spectrum->SetMarkerColor(kBlack);
+  g_060_spectrum->Draw("P,same");
+  //g_060_spectrum_var1->Draw("P,same");
+  g_060_spectrum_var2->Draw("P,same");
+  f_published_060_spectrum_fit_extrapolated->Draw("same");
+  //f_spectrum_fit_var1_extrapolated->Draw("same");
+  f_spectrum_fit_var2->Draw("same");
 
-	//f_spectrum_fit_var3_extrapolated->Draw("same");
-	//f_spectrum_fit_var4->Draw("same");
+  //f_spectrum_fit_var3_extrapolated->Draw("same");
+  //f_spectrum_fit_var4->Draw("same");
 
-	for (int i = 0; i < NPOINTS060; i++)
-	{
-		systematicErrors060[i]->Draw("same");
-	}
+  for (int i = 0; i < NPOINTS060; i++)
+  {
+    systematicErrors060[i]->Draw("same");
+  }
 }
 
 
 void plotDataNoPhaseFactor()
 {
-	TCanvas *cNP = new TCanvas("cNP", "No Phase Space Factor", 700, 700);
-	cNP->SetLogy();
+  TCanvas *cNP = new TCanvas("cNP", "No Phase Space Factor", 700, 700);
+  cNP->SetLogy();
 
-	TH1F *hTemplate2 = new TH1F("hTemplate2", "hTemplate2", 100, 0, 20);
-	hTemplate2->SetTitle("");
-	hTemplate2->GetXaxis()->SetTitleFont(62);
-	hTemplate2->GetXaxis()->SetLabelFont(62);
-	hTemplate2->GetXaxis()->SetRangeUser(0, 20);
-	hTemplate2->GetYaxis()->SetTitleFont(62);
-	hTemplate2->GetYaxis()->SetLabelFont(62);
-	hTemplate2->GetXaxis()->SetTitle("p_{T} [GeV/c]");
-	hTemplate2->GetYaxis()->SetTitle("dN/dp_{T}");
-	hTemplate2->GetYaxis()->SetTitleOffset(1.3);
-	hTemplate2->GetYaxis()->SetRangeUser(1e-8, 150);
-	hTemplate2->Draw();
+  TH1F *hTemplate2 = new TH1F("hTemplate2", "hTemplate2", 100, 0, 20);
+  hTemplate2->SetTitle("");
+  hTemplate2->GetXaxis()->SetTitleFont(62);
+  hTemplate2->GetXaxis()->SetLabelFont(62);
+  hTemplate2->GetXaxis()->SetRangeUser(0, 20);
+  hTemplate2->GetYaxis()->SetTitleFont(62);
+  hTemplate2->GetYaxis()->SetLabelFont(62);
+  hTemplate2->GetXaxis()->SetTitle("p_{T} [GeV/c]");
+  hTemplate2->GetYaxis()->SetTitle("dN/dp_{T}");
+  hTemplate2->GetYaxis()->SetTitleOffset(1.3);
+  hTemplate2->GetYaxis()->SetRangeUser(1e-8, 150);
+  hTemplate2->Draw();
 
-	g_060_spectrum_npf->SetTitle("");
-	g_060_spectrum_npf->GetXaxis()->SetTitleFont(62);
-	g_060_spectrum_npf->GetXaxis()->SetLabelFont(62);
-	g_060_spectrum_npf->GetXaxis()->SetRangeUser(0, 18);
-	g_060_spectrum_npf->GetYaxis()->SetTitleFont(62);
-	g_060_spectrum_npf->GetYaxis()->SetLabelFont(62);
-	g_060_spectrum_npf->GetXaxis()->SetTitle("p_{T} [GeV/c]");
-	g_060_spectrum_npf->GetYaxis()->SetTitle("dN/dp_{T}");
-	g_060_spectrum_npf->GetYaxis()->SetRangeUser(1e-8, 150);
-	g_060_spectrum_npf->SetMarkerStyle(20);
-	g_060_spectrum_npf->SetMarkerSize(0.8);
-	g_060_spectrum_npf->SetMarkerColor(kBlack);
+  g_combined_npf->SetTitle("");
+  g_combined_npf->GetXaxis()->SetTitleFont(62);
+  g_combined_npf->GetXaxis()->SetLabelFont(62);
+  g_combined_npf->GetXaxis()->SetRangeUser(0, 18);
+  g_combined_npf->GetYaxis()->SetTitleFont(62);
+  g_combined_npf->GetYaxis()->SetLabelFont(62);
+  g_combined_npf->GetXaxis()->SetTitle("p_{T} [GeV/c]");
+  g_combined_npf->GetYaxis()->SetTitle("dN/dp_{T}");
+  g_combined_npf->GetYaxis()->SetRangeUser(1e-8, 150);
+  g_combined_npf->SetMarkerStyle(20);
+  g_combined_npf->SetMarkerSize(0.8);
+  g_combined_npf->SetMarkerColor(kBlack);
 
-	g_086_spectrum_npf->SetTitle("");
-	g_086_spectrum_npf->GetXaxis()->SetTitleFont(62);
-	g_086_spectrum_npf->GetXaxis()->SetLabelFont(62);
-	g_086_spectrum_npf->GetXaxis()->SetRangeUser(0, 18);
-	g_086_spectrum_npf->GetYaxis()->SetTitleFont(62);
-	g_086_spectrum_npf->GetYaxis()->SetLabelFont(62);
-	g_086_spectrum_npf->GetXaxis()->SetTitle("p_{T} [GeV/c]");
-	g_086_spectrum_npf->GetYaxis()->SetTitle("dN/dp_{T}");
-	g_086_spectrum_npf->GetYaxis()->SetRangeUser(1e-8, 150);
-	g_086_spectrum_npf->SetMarkerStyle(20);
-	g_086_spectrum_npf->SetMarkerSize(0.8);
-	g_086_spectrum_npf->SetMarkerColor(kBlack);
+  g_060_spectrum_npf->SetTitle("");
+  g_060_spectrum_npf->GetXaxis()->SetTitleFont(62);
+  g_060_spectrum_npf->GetXaxis()->SetLabelFont(62);
+  g_060_spectrum_npf->GetXaxis()->SetRangeUser(0, 18);
+  g_060_spectrum_npf->GetYaxis()->SetTitleFont(62);
+  g_060_spectrum_npf->GetYaxis()->SetLabelFont(62);
+  g_060_spectrum_npf->GetXaxis()->SetTitle("p_{T} [GeV/c]");
+  g_060_spectrum_npf->GetYaxis()->SetTitle("dN/dp_{T}");
+  g_060_spectrum_npf->GetYaxis()->SetRangeUser(1e-8, 150);
+  g_060_spectrum_npf->SetMarkerStyle(20);
+  g_060_spectrum_npf->SetMarkerSize(0.8);
+  g_060_spectrum_npf->SetMarkerColor(kBlack);
 
-	g_136_spectrum_npf->SetTitle("");
-	g_136_spectrum_npf->GetXaxis()->SetTitleFont(62);
-	g_136_spectrum_npf->GetXaxis()->SetLabelFont(62);
-	g_136_spectrum_npf->GetXaxis()->SetRangeUser(0, 18);
-	g_136_spectrum_npf->GetYaxis()->SetTitleFont(62);
-	g_136_spectrum_npf->GetYaxis()->SetLabelFont(62);
-	g_136_spectrum_npf->GetXaxis()->SetTitle("p_{T} [GeV/c]");
-	g_136_spectrum_npf->GetYaxis()->SetTitle("dN/dp_{T}");
-	g_136_spectrum_npf->GetYaxis()->SetRangeUser(1e-8, 150);
-	g_136_spectrum_npf->SetMarkerStyle(20);
-	g_136_spectrum_npf->SetMarkerSize(0.8);
-	g_136_spectrum_npf->SetMarkerColor(kBlack);
+  g_086_spectrum_npf->SetTitle("");
+  g_086_spectrum_npf->GetXaxis()->SetTitleFont(62);
+  g_086_spectrum_npf->GetXaxis()->SetLabelFont(62);
+  g_086_spectrum_npf->GetXaxis()->SetRangeUser(0, 18);
+  g_086_spectrum_npf->GetYaxis()->SetTitleFont(62);
+  g_086_spectrum_npf->GetYaxis()->SetLabelFont(62);
+  g_086_spectrum_npf->GetXaxis()->SetTitle("p_{T} [GeV/c]");
+  g_086_spectrum_npf->GetYaxis()->SetTitle("dN/dp_{T}");
+  g_086_spectrum_npf->GetYaxis()->SetRangeUser(1e-8, 150);
+  g_086_spectrum_npf->SetMarkerStyle(20);
+  g_086_spectrum_npf->SetMarkerSize(0.8);
+  g_086_spectrum_npf->SetMarkerColor(kBlack);
 
-	g_nlo_136_npf->Draw("L,same");
-	g_nlo_060_npf->Draw("L, same");
+  g_136_spectrum_npf->SetTitle("");
+  g_136_spectrum_npf->GetXaxis()->SetTitleFont(62);
+  g_136_spectrum_npf->GetXaxis()->SetLabelFont(62);
+  g_136_spectrum_npf->GetXaxis()->SetRangeUser(0, 18);
+  g_136_spectrum_npf->GetYaxis()->SetTitleFont(62);
+  g_136_spectrum_npf->GetYaxis()->SetLabelFont(62);
+  g_136_spectrum_npf->GetXaxis()->SetTitle("p_{T} [GeV/c]");
+  g_136_spectrum_npf->GetYaxis()->SetTitle("dN/dp_{T}");
+  g_136_spectrum_npf->GetYaxis()->SetRangeUser(1e-8, 150);
+  g_136_spectrum_npf->SetMarkerStyle(20);
+  g_136_spectrum_npf->SetMarkerSize(0.8);
+  g_136_spectrum_npf->SetMarkerColor(kBlack);
 
-	g_nlo_136_npf->SetLineStyle(7);
-	g_nlo_060_npf->SetLineStyle(7);
+  g_nlo_136_npf->Draw("L,same");
+  g_nlo_060_npf->Draw("L, same");
 
-	g_060_spectrum_npf->Draw("P,same");
-	g_136_spectrum_npf->Draw("P,same");
-	//g_086_spectrum_npf->Draw("P,same");
-	//g_060_spectrum_var1_npf->Draw("P,same");
-	//g_060_spectrum_var2_npf->Draw("P,same");
-	//f_published_060_spectrum_fit_extrapolated_npf->Draw("same");
-	//f_spectrum_fit_var1_extrapolated_npf->Draw("same");
-	//f_spectrum_fit_var2_extrapolated_npf->Draw("same");
-	//f_spectrum_fit_var3_extrapolated_npf->Draw("same");
-	//f_spectrum_fit_var4_extrapolated_npf->Draw("same");
+  g_nlo_136_npf->SetLineStyle(7);
+  g_nlo_060_npf->SetLineStyle(7);
 
-	for (int i = 0; i < NPOINTS060; i++)
-	{
-		systematicErrors_npf060[i]->Draw("same");
-	}
+  g_combined_npf->Draw("P,same");
+  //g_060_spectrum_npf->Draw("P,same");
+  //g_136_spectrum_npf->Draw("P,same");
+  //g_086_spectrum_npf->Draw("P,same");
+  //g_060_spectrum_var1_npf->Draw("P,same");
+  //g_060_spectrum_var2_npf->Draw("P,same");
+  f_published_060_spectrum_fit_extrapolated_npf->Draw("same");
+  //f_spectrum_fit_var1_extrapolated_npf->Draw("same");
+  //f_spectrum_fit_var2_extrapolated_npf->Draw("same");
+  //f_spectrum_fit_var3_extrapolated_npf->Draw("same");
+  //f_spectrum_fit_var4_extrapolated_npf->Draw("same");
 
-	TLatex latex;
-	latex.SetNDC();
-	latex.SetTextSize(0.025);
-	latex.DrawLatex(.15, .85, "PHENIX Direct Photon Spectrum");
-	latex.DrawLatex(.15, .82, "PRL 98, 012002 [PPG060]");
+  for (int i = 0; i < NPOINTS060; i++)
+  {
+    //systematicErrors_npf060[i]->Draw("same");
+  }
+
+  for (int i = 0; i < NPOINTS086; i++)
+  {
+    //systematicErrors_npf086[i]->Draw("same");
+  }
+
+  for (int i = 0; i < NPOINTS086 + NPOINTS060 + NPOINTS136; i++)
+  {
+    systematicErrors_npfCombined[i]->Draw("same");
+  }
+
+  TLatex latex;
+  latex.SetNDC();
+  latex.SetTextSize(0.025);
+  latex.DrawLatex(.15, .85, "PHENIX Direct Photon Spectrum");
+  latex.DrawLatex(.15, .82, "PRL 98, 012002 [PPG060]");
 }
 
 
 void systematicsPhotons()
 {
-	gStyle->SetOptStat(0);
+  gStyle->SetOptStat(0);
 
-	makeNLO();
-	makePublishedSpectrum060();
-	makePublishedSpectrum086();
-	makePublishedSpectrum136();
-	defineVariation1();
-	defineVariation2();
-	defineVariation3();
-	defineVariation4();
-	//plotDataPublishedFit();
-	plotDataNoPhaseFactor();
+  makeNLO();
+  makePublishedSpectrum060();
+  makePublishedSpectrum086();
+  makePublishedSpectrum136();
+  combinePublications();
+  //defineVariation1();
+  //defineVariation2();
+  //defineVariation3();
+  //defineVariation4();
+  //plotDataPublishedFit();
+  plotDataNoPhaseFactor();
 }
 
