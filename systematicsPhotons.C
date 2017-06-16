@@ -53,6 +53,12 @@ TF1 *f_published_136_spectrum_fit_extrapolated_npf;
 TF1 *f_combined_fit;
 TF1 *f_combined_fit_npf;
 
+TF1 *f_combined_fit_puncert;
+TF1 *f_combined_fit_puncert_npf;
+
+TF1 *f_combined_fit_muncert;
+TF1 *f_combined_fit_muncert_npf;
+
 TBox *systematicErrors060[NPOINTS060];
 TBox *systematicErrors_npf060[NPOINTS060];
 
@@ -488,18 +494,38 @@ void combinePublications()
 
   //Fit the resulting combined spectra with a modified Hagedorn function
   f_combined_fit = new TF1("f_combined_fit", "[0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])", 0, 18.0);
-  f_combined_fit->SetParameters(2.42345e-01, -8.27585e-02, 9.18447e-03, 4.13943e+00, 1.36974e+01);
+  f_combined_fit->SetParameters(41.0, -0.89, 0.35, 0.67, 8.15);
   //f_combined_fit->SetParameters(0.00488828, 0.8888921, 0.209916, 1.43194, 6.48914); //Looks most like PPG162
-  //g_combined->Fit(f_combined_fit, "0R");
+  g_combined->Fit(f_combined_fit, "0R");
 
   f_combined_fit_npf = new TF1("f_combined_fit_npf", "2*TMath::Pi()*x*[0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])", 0, 18.0);
   f_combined_fit_npf->SetParameters(f_combined_fit->GetParameter(0), f_combined_fit->GetParameter(1), f_combined_fit->GetParameter(2), f_combined_fit->GetParameter(3), f_combined_fit->GetParameter(4));
 
+  //The parameters from the fit have associated uncertainties. Check what the fit looks like when
+  //paramters are deformed by the maximum extent of their uncertainty in both directions
+  f_combined_fit_muncert = new TF1("f_combined_fit_muncert", "[0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])", 0, 18.0);
+  f_combined_fit_muncert->SetParameters(f_combined_fit->GetParameter(0) - f_combined_fit->GetParError(0), f_combined_fit->GetParameter(1) - f_combined_fit->GetParError(1), f_combined_fit->GetParameter(2) - f_combined_fit->GetParError(2), f_combined_fit->GetParameter(3) - f_combined_fit->GetParError(3), f_combined_fit->GetParameter(4) - f_combined_fit->GetParError(4));
+
+  f_combined_fit_muncert_npf = new TF1("f_combined_fit_muncert_npf", "2*TMath::Pi()*x*[0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])", 0, 18.0);
+  f_combined_fit_muncert_npf->SetParameters(f_combined_fit->GetParameter(0) - f_combined_fit->GetParError(0), f_combined_fit->GetParameter(1) - f_combined_fit->GetParError(1), f_combined_fit->GetParameter(2) - f_combined_fit->GetParError(2), f_combined_fit->GetParameter(3) - f_combined_fit->GetParError(3), f_combined_fit->GetParameter(4) - f_combined_fit->GetParError(4));
+
+  f_combined_fit_puncert = new TF1("f_combined_fit_puncert", "[0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])", 0, 18.0);
+  f_combined_fit_puncert->SetParameters(f_combined_fit->GetParameter(0) + f_combined_fit->GetParError(0), f_combined_fit->GetParameter(1) + f_combined_fit->GetParError(1), f_combined_fit->GetParameter(2) + f_combined_fit->GetParError(2), f_combined_fit->GetParameter(3) + f_combined_fit->GetParError(3), f_combined_fit->GetParameter(4) + f_combined_fit->GetParError(4));
+
+  f_combined_fit_puncert_npf = new TF1("f_combined_fit_puncert_npf", "2*TMath::Pi()*x*[0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])", 0, 18.0);
+  f_combined_fit_puncert_npf->SetParameters(f_combined_fit->GetParameter(0) + f_combined_fit->GetParError(0), f_combined_fit->GetParameter(1) + f_combined_fit->GetParError(1), f_combined_fit->GetParameter(2) + f_combined_fit->GetParError(2), f_combined_fit->GetParameter(3) + f_combined_fit->GetParError(3), f_combined_fit->GetParameter(4) + f_combined_fit->GetParError(4));
+
   //Result of above fit
   //f_combined_fit_npf->SetParameters(2.42345e-01, -8.27585e-02, 9.18447e-03, 4.13943e+00, 1.36974e+01);
+  //With seeds
+  //f_combined_fit->SetParameters(41.0, -0.89, 0.35, 0.67, 8.15);
 
   f_combined_fit->SetLineColor(kBlack);
   f_combined_fit_npf->SetLineColor(kBlack);
+  f_combined_fit_muncert->SetLineColor(kGray);
+  f_combined_fit_muncert_npf->SetLineColor(kGray);
+  f_combined_fit_puncert->SetLineColor(kGray);
+  f_combined_fit_puncert_npf->SetLineColor(kGray);
 }
 
 
@@ -560,7 +586,7 @@ void defineVariation2()
 
   for (int i = 0; i < NPOINTS060 + NPOINTS086; i++)
   {
-    float scaling = -1*(err_y_syst[i] / 2.0) * ((data_x[i] - pT0) / (pTextreme - pT0));
+    float scaling = -1 * (err_y_syst[i] / 2.0) * ((data_x[i] - pT0) / (pTextreme - pT0));
     data_y_var2[i] = data_y[i] + scaling;
   }
 
@@ -672,9 +698,11 @@ void plotDataPublishedFit()
   g_combined->SetMarkerColor(kBlack);
   g_combined->Draw("P,same");
   //g_060_spectrum_var1->Draw("P,same");
-  g_060_spectrum_var2->Draw("P,same");
+  //g_060_spectrum_var2->Draw("P,same");
   //f_published_060_spectrum_fit_extrapolated->Draw("same");
   f_combined_fit->Draw("same");
+  f_combined_fit_puncert->Draw("same");
+  f_combined_fit_muncert->Draw("same");
   f_spectrum_fit_var1_extrapolated->Draw("same");
   f_spectrum_fit_var2_extrapolated->Draw("same");
 
@@ -766,11 +794,13 @@ void plotDataNoPhaseFactor()
 
   g_combined_npf->Draw("P,same");
   f_combined_fit_npf->Draw("same");
+  f_combined_fit_puncert_npf->Draw("same");
+  f_combined_fit_muncert_npf->Draw("same");
   //g_060_spectrum_npf->Draw("P,same");
   //g_136_spectrum_npf->Draw("P,same");
   //g_086_spectrum_npf->Draw("P,same");
   //g_060_spectrum_var1_npf->Draw("P,same");
-  g_060_spectrum_var2_npf->Draw("P,same");
+  //g_060_spectrum_var2_npf->Draw("P,same");
   //f_published_060_spectrum_fit_extrapolated_npf->Draw("same");
   f_spectrum_fit_var1_extrapolated_npf->Draw("same");
   f_spectrum_fit_var2_extrapolated_npf->Draw("same");
