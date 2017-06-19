@@ -159,15 +159,15 @@ void makePublishedSpectrum()
 
 	f_published_spectrum_fit = new TF1("f_published_spectrum_fit", "([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 3.25, 15.0);
 	f_published_spectrum_fit->SetParameters(545.206, 0.421156, -0.00156003, 0.58791, 8.04994);
-	f_published_spectrum_fit->SetLineColor(varColors[0]);
+	f_published_spectrum_fit->SetLineColor(varColors[2]);
 
 	f_published_spectrum_fit_extrapolated = new TF1("f_published_spectrum_fit_extrapolated", "([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 0.0, 18.0);
 	f_published_spectrum_fit_extrapolated->SetParameters(f_published_spectrum_fit->GetParameter(0), f_published_spectrum_fit->GetParameter(1), f_published_spectrum_fit->GetParameter(2), f_published_spectrum_fit->GetParameter(3), f_published_spectrum_fit->GetParameter(4));
-	f_published_spectrum_fit_extrapolated->SetLineColor(varColors[0]);
+	f_published_spectrum_fit_extrapolated->SetLineColor(varColors[2]);
 
 	f_published_spectrum_fit_extrapolated_npf = new TF1("f_published_spectrum_fit_extrapolated_npf", "2*TMath::Pi()*x*([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 0.0, 18.0);
 	f_published_spectrum_fit_extrapolated_npf->SetParameters(f_published_spectrum_fit->GetParameter(0), f_published_spectrum_fit->GetParameter(1), f_published_spectrum_fit->GetParameter(2), f_published_spectrum_fit->GetParameter(3), f_published_spectrum_fit->GetParameter(4));
-	f_published_spectrum_fit_extrapolated_npf->SetLineColor(varColors[0]);
+	f_published_spectrum_fit_extrapolated_npf->SetLineColor(varColors[2]);
 }
 
 
@@ -211,10 +211,12 @@ void defineVariation1()
 	}
 
 	g_spectrum_var1_npf = new TGraphErrors(NPOINTS, data_x, data_y_npf, err_x, err_y_stat);
-	g_spectrum_var1_npf->SetMarkerColor(varColors[1]);
-	g_spectrum_var1_npf->SetLineColor(varColors[1]);
+	g_spectrum_var1_npf->SetMarkerColor(varColors[0]);
+	g_spectrum_var1_npf->SetLineColor(varColors[0]);
 	g_spectrum_var1_npf->SetMarkerStyle(20);
 	g_spectrum_var1_npf->SetMarkerSize(0.7);
+
+	f_spectrum_fit_var1_extrapolated_npf->SetLineColor(varColors[0]);
 }
 
 
@@ -242,15 +244,15 @@ void defineVariation2()
 	f_spectrum_fit_var2 = new TF1("f_spectrum_fit_var2", "[0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])", 3.25, 15.0);
 	f_spectrum_fit_var2->SetParameters(545.206, 0.421156, -0.00156003, 0.58791, 8.04994);
 	g_spectrum_var2->Fit(f_spectrum_fit_var2, "Q0R");
-	f_spectrum_fit_var2->SetLineColor(kBlue);
+	f_spectrum_fit_var2->SetLineColor(varColors[1]);
 
 	f_spectrum_fit_var2_extrapolated = new TF1("f_spectrum_fit_var2_extrapolated", "([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 0.0, 18.0);
 	f_spectrum_fit_var2_extrapolated->SetParameters(f_spectrum_fit_var2->GetParameter(0), f_spectrum_fit_var2->GetParameter(1), f_spectrum_fit_var2->GetParameter(2), f_spectrum_fit_var2->GetParameter(3), f_spectrum_fit_var2->GetParameter(4));
-	f_spectrum_fit_var2_extrapolated->SetLineColor(kBlue);
+	f_spectrum_fit_var2_extrapolated->SetLineColor(varColors[1]);
 
 	f_spectrum_fit_var2_extrapolated_npf = new TF1("f_spectrum_fit_var2_extrapolated_npf", "2*TMath::Pi()*x*([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 0.0, 18.0);
 	f_spectrum_fit_var2_extrapolated_npf->SetParameters(f_spectrum_fit_var2->GetParameter(0), f_spectrum_fit_var2->GetParameter(1), f_spectrum_fit_var2->GetParameter(2), f_spectrum_fit_var2->GetParameter(3), f_spectrum_fit_var2->GetParameter(4));
-	f_spectrum_fit_var2_extrapolated_npf->SetLineColor(kBlue);
+	f_spectrum_fit_var2_extrapolated_npf->SetLineColor(varColors[1]);
 
 	//Spectrum without phase space factor
 	float data_y_npf[NPOINTS];
@@ -261,8 +263,8 @@ void defineVariation2()
 	}
 
 	g_spectrum_var2_npf = new TGraphErrors(NPOINTS, data_x, data_y_npf, err_x, err_y_stat);
-	g_spectrum_var2_npf->SetMarkerColor(varColors[2]);
-	g_spectrum_var2_npf->SetLineColor(varColors[2]);
+	g_spectrum_var2_npf->SetMarkerColor(varColors[1]);
+	g_spectrum_var2_npf->SetLineColor(varColors[1]);
 	g_spectrum_var2_npf->SetMarkerStyle(20);
 	g_spectrum_var2_npf->SetMarkerSize(0.7);
 }
@@ -317,22 +319,32 @@ void defineVariation4()
 
 void getRatios()
 {
-	h_ratio_var1 = new TH1F("h_ratio_var1", "h_ratio_var1", 100, 0, 18.0);
-	h_ratio_var2 = new TH1F("h_ratio_var2", "h_ratio_var2", 100, 0, 18.0);
-	h_ratio_var3 = new TH1F("h_ratio_var3", "h_ratio_var3", 100, 0, 18.0);
-	h_ratio_var4 = new TH1F("h_ratio_var4", "h_ratio_var4", 100, 0, 18.0);
+	h_ratio_var1 = new TH1F("h_ratio_var1", "h_ratio_var1", 100, 0, 20.0);
+	h_ratio_var2 = new TH1F("h_ratio_var2", "h_ratio_var2", 100, 0, 20.0);
+	h_ratio_var3 = new TH1F("h_ratio_var3", "h_ratio_var3", 100, 0, 20.0);
+	h_ratio_var4 = new TH1F("h_ratio_var4", "h_ratio_var4", 100, 0, 20.0);
 
-	for (int i = 0; i < 100; i++)
+	for (int i = 0; i < 95; i++)
 	{
 		float ratio1 = f_spectrum_fit_var1_extrapolated_npf->Eval(h_ratio_var1->GetBinCenter(i + 1)) / f_mtscaled_spectrum_npf->Eval(h_ratio_var1->GetBinCenter(i + 1));
 		float ratio2 = f_spectrum_fit_var2_extrapolated_npf->Eval(h_ratio_var2->GetBinCenter(i + 1)) / f_mtscaled_spectrum_npf->Eval(h_ratio_var2->GetBinCenter(i + 1));
-		float ratio3 = f_spectrum_fit_var3_extrapolated_npf->Eval(h_ratio_var3->GetBinCenter(i + 1)) / f_mtscaled_spectrum_npf->Eval(h_ratio_var3->GetBinCenter(i + 1));
+		float ratio3 = f_published_spectrum_fit_extrapolated_npf->Eval(h_ratio_var3->GetBinCenter(i + 1)) / f_mtscaled_spectrum_npf->Eval(h_ratio_var3->GetBinCenter(i + 1));
 		float ratio4 = f_spectrum_fit_var4_extrapolated_npf->Eval(h_ratio_var4->GetBinCenter(i + 1)) / f_mtscaled_spectrum_npf->Eval(h_ratio_var4->GetBinCenter(i + 1));
 
 		h_ratio_var1->SetBinContent(i, ratio1);
 		h_ratio_var2->SetBinContent(i, ratio2);
 		h_ratio_var3->SetBinContent(i, ratio3);
 		h_ratio_var4->SetBinContent(i, ratio4);
+
+		h_ratio_var1->SetLineColor(varColors[0]);
+		h_ratio_var2->SetLineColor(varColors[1]);
+		h_ratio_var3->SetLineColor(varColors[2]);
+		h_ratio_var4->SetLineColor(varColors[3]);
+
+		h_ratio_var1->SetLineWidth(2);
+		h_ratio_var2->SetLineWidth(2);
+		h_ratio_var3->SetLineWidth(2);
+		h_ratio_var4->SetLineWidth(2);
 	}
 
 }
@@ -389,20 +401,26 @@ void plotDataPublishedFit()
 
 void plotDataNoPhaseFactor()
 {
-	TCanvas *cNP = new TCanvas("cNP", "No Phase Space Factor", 700, 700);
-	cNP->SetLogy();
+	TCanvas *cNP = new TCanvas("cNP", "Stacked Representation of Fit", 700, 900);
+	TPad *pad1 = new TPad("pad1", "pad1", 0, 0.3, 1, 1);
+	pad1->SetLogy();
+	pad1->SetTickx();
+	pad1->SetTicky();
+	pad1->SetBottomMargin(0);
+	pad1->Draw();
+	pad1->cd();
 
 	TH1F *hTemplate2 = new TH1F("hTemplate2", "hTemplate2", 100, 0, 20);
 	hTemplate2->SetTitle("");
 	hTemplate2->GetXaxis()->SetTitleFont(62);
 	hTemplate2->GetXaxis()->SetLabelFont(62);
-	hTemplate2->GetXaxis()->SetRangeUser(0, 20);
+	hTemplate2->GetXaxis()->SetRangeUser(0, 18);
 	hTemplate2->GetYaxis()->SetTitleFont(62);
 	hTemplate2->GetYaxis()->SetLabelFont(62);
 	hTemplate2->GetXaxis()->SetTitle("p_{T} [GeV/c]");
 	hTemplate2->GetYaxis()->SetTitle("dN/dp_{T}");
 	hTemplate2->GetYaxis()->SetTitleOffset(1.3);
-	hTemplate2->GetYaxis()->SetRangeUser(1e-8, 150);
+	hTemplate2->GetYaxis()->SetRangeUser(2e-8, 200);
 	hTemplate2->Draw();
 
 	g_spectrum_npf->SetTitle("");
@@ -433,11 +451,46 @@ void plotDataNoPhaseFactor()
 		systematicErrors_npf[i]->Draw("same");
 	}
 
+	g_spectrum_npf->Draw("P,same");
+
 	TLatex latex;
 	latex.SetNDC();
 	latex.SetTextSize(0.025);
 	latex.DrawLatex(.15, .85, "PHENIX Eta Spectrum");
 	latex.DrawLatex(.15, .82, "PRD 76, 051106(R) [PPG063]");
+
+
+	cNP->cd();
+	TPad *pad2 = new TPad("pad2", "pad2", 0, 0, 1, 0.3);
+	pad2->SetTopMargin(0);
+	pad2->SetBottomMargin(0.3);
+	pad2->Draw();
+	pad2->cd();
+	pad2->SetTickx();
+	pad2->SetTicky();
+	h_ratio_var1->SetMarkerStyle(7);
+	h_ratio_var1->GetXaxis()->SetTitleFont(62);
+	h_ratio_var1->GetXaxis()->SetLabelFont(62);
+	h_ratio_var1->GetXaxis()->SetRangeUser(0, 18);
+	h_ratio_var1->GetYaxis()->SetTitleFont(62);
+	h_ratio_var1->GetYaxis()->SetLabelFont(62);
+	h_ratio_var1->SetTitle("");
+	h_ratio_var1->GetYaxis()->CenterTitle();
+	h_ratio_var1->GetYaxis()->SetRangeUser(0.0, 4.8);
+	h_ratio_var1->GetXaxis()->SetTitle("p_{T} [GeV/c]");
+	h_ratio_var1->GetYaxis()->SetTitle("Variation / Fit");
+	h_ratio_var1->GetYaxis()->SetTitleSize(0.085);
+	h_ratio_var1->GetYaxis()->SetTitleOffset(0.4);
+	h_ratio_var1->GetYaxis()->SetLabelSize(0.085);
+	h_ratio_var1->GetXaxis()->SetTitleSize(0.085);
+	h_ratio_var1->GetXaxis()->SetTitleOffset(1.2);
+	h_ratio_var1->GetXaxis()->SetLabelSize(0.085);
+	h_ratio_var1->Draw("L");
+	h_ratio_var2->Draw("L,same");
+	h_ratio_var3->Draw("L,same");
+	h_ratio_var4->Draw("L,same");
+
+	cNP->cd();
 }
 
 
