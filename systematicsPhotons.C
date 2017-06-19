@@ -71,6 +71,8 @@ TBox *systematicErrors_npf136[NPOINTS136];
 TBox *systematicErrorsCombined[NPOINTS136 + NPOINTS086 + NPOINTS060];
 TBox *systematicErrors_npfCombined[NPOINTS136 + NPOINTS086 + NPOINTS060];
 
+int varColors[3] = {kGreen + 2, kRed, kBlue};
+
 ///////////////////////////////////////////////////////////
 // PPG060 - Dd^3\sigma/dp^3 = (1/2pi pT) dN/dpT
 ///////////////////////////////////////////////////////////
@@ -331,15 +333,15 @@ void makePublishedSpectrum060()
 
   f_published_060_spectrum_fit = new TF1("f_published_060_spectrum_fit", "([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 3.25, 15.0);
   f_published_060_spectrum_fit->SetParameters(13.0488, -0.191588, 0.0164036, 0.999159, 8.42105);
-  f_published_060_spectrum_fit->SetLineColor(kBlack);
+  f_published_060_spectrum_fit->SetLineColor(varColors[0]);
 
   f_published_060_spectrum_fit_extrapolated = new TF1("f_published_060_spectrum_fit_extrapolated", "([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 0.0, 18.0);
   f_published_060_spectrum_fit_extrapolated->SetParameters(f_published_060_spectrum_fit->GetParameter(0), f_published_060_spectrum_fit->GetParameter(1), f_published_060_spectrum_fit->GetParameter(2), f_published_060_spectrum_fit->GetParameter(3), f_published_060_spectrum_fit->GetParameter(4));
-  f_published_060_spectrum_fit_extrapolated->SetLineColor(kBlack);
+  f_published_060_spectrum_fit_extrapolated->SetLineColor(varColors[0]);
 
   f_published_060_spectrum_fit_extrapolated_npf = new TF1("f_published_060_spectrum_fit_extrapolated_npf", "2*TMath::Pi()*x*([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 0.0, 18.0);
   f_published_060_spectrum_fit_extrapolated_npf->SetParameters(f_published_060_spectrum_fit->GetParameter(0), f_published_060_spectrum_fit->GetParameter(1), f_published_060_spectrum_fit->GetParameter(2), f_published_060_spectrum_fit->GetParameter(3), f_published_060_spectrum_fit->GetParameter(4));
-  f_published_060_spectrum_fit_extrapolated_npf->SetLineColor(kBlack);
+  f_published_060_spectrum_fit_extrapolated_npf->SetLineColor(varColors[0]);
 }
 
 
@@ -425,15 +427,15 @@ void makePublishedSpectrum136()
 
   f_published_136_spectrum_fit = new TF1("f_published_136_spectrum_fit", "([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 3.25, 15.0);
   f_published_136_spectrum_fit->SetParameters(13.0488, -0.191588, 0.0164036, 0.999159, 8.42105);
-  f_published_136_spectrum_fit->SetLineColor(kBlack);
+  f_published_136_spectrum_fit->SetLineColor(varColors[0]);
 
   f_published_136_spectrum_fit_extrapolated = new TF1("f_published_136_spectrum_fit_extrapolated", "([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 0.0, 18.0);
   f_published_136_spectrum_fit_extrapolated->SetParameters(f_published_136_spectrum_fit->GetParameter(0), f_published_136_spectrum_fit->GetParameter(1), f_published_136_spectrum_fit->GetParameter(2), f_published_136_spectrum_fit->GetParameter(3), f_published_136_spectrum_fit->GetParameter(4));
-  f_published_136_spectrum_fit_extrapolated->SetLineColor(kBlack);
+  f_published_136_spectrum_fit_extrapolated->SetLineColor(varColors[0]);
 
   f_published_136_spectrum_fit_extrapolated_npf = new TF1("f_published_136_spectrum_fit_extrapolated_npf", "2*TMath::Pi()*x*([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 0.0, 18.0);
   f_published_136_spectrum_fit_extrapolated_npf->SetParameters(f_published_136_spectrum_fit->GetParameter(0), f_published_136_spectrum_fit->GetParameter(1), f_published_136_spectrum_fit->GetParameter(2), f_published_136_spectrum_fit->GetParameter(3), f_published_136_spectrum_fit->GetParameter(4));
-  f_published_136_spectrum_fit_extrapolated_npf->SetLineColor(kBlack);
+  f_published_136_spectrum_fit_extrapolated_npf->SetLineColor(varColors[0]);
 }
 
 
@@ -496,10 +498,12 @@ void combinePublications()
   f_combined_fit = new TF1("f_combined_fit", "[0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])", 0, 18.0);
   f_combined_fit->SetParameters(41.0, -0.89, 0.35, 0.67, 8.15);
   //f_combined_fit->SetParameters(0.00488828, 0.8888921, 0.209916, 1.43194, 6.48914); //Looks most like PPG162
-  g_combined->Fit(f_combined_fit, "0R");
+  g_combined->Fit(f_combined_fit, "Q0R");
+  f_combined_fit->SetLineStyle(7);
 
   f_combined_fit_npf = new TF1("f_combined_fit_npf", "2*TMath::Pi()*x*[0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])", 0, 18.0);
   f_combined_fit_npf->SetParameters(f_combined_fit->GetParameter(0), f_combined_fit->GetParameter(1), f_combined_fit->GetParameter(2), f_combined_fit->GetParameter(3), f_combined_fit->GetParameter(4));
+  f_combined_fit_npf->SetLineStyle(7);
 
   //The parameters from the fit have associated uncertainties. Check what the fit looks like when
   //paramters are deformed by the maximum extent of their uncertainty in both directions
@@ -569,10 +573,13 @@ void defineVariation1()
   }
 
   g_060_spectrum_var1_npf = new TGraphErrors(NPOINTS060 + NPOINTS086, data_x, data_y_npf, err_x, err_y_stat);
-  g_060_spectrum_var1_npf->SetMarkerColor(kRed);
-  g_060_spectrum_var1_npf->SetLineColor(kRed);
+  g_060_spectrum_var1_npf->SetMarkerColor(varColors[1]);
+  g_060_spectrum_var1_npf->SetLineColor(varColors[1]);
   g_060_spectrum_var1_npf->SetMarkerStyle(20);
   g_060_spectrum_var1_npf->SetMarkerSize(0.7);
+
+  f_spectrum_fit_var1_extrapolated->SetLineColor(varColors[1]);
+  f_spectrum_fit_var1_extrapolated_npf->SetLineColor(varColors[1]);
 }
 
 
@@ -591,8 +598,8 @@ void defineVariation2()
   }
 
   g_060_spectrum_var2 = new TGraphErrors(NPOINTS060 + NPOINTS086, data_x, data_y_var2, err_x, err_y_stat);
-  g_060_spectrum_var2->SetMarkerColor(kBlue);
-  g_060_spectrum_var2->SetLineColor(kBlue);
+  g_060_spectrum_var2->SetMarkerColor(varColors[2]);
+  g_060_spectrum_var2->SetLineColor(varColors[2]);
   g_060_spectrum_var2->SetMarkerStyle(20);
   g_060_spectrum_var2->SetMarkerSize(0.7);
 
@@ -616,31 +623,30 @@ void defineVariation2()
   }
 
   g_060_spectrum_var2_npf = new TGraphErrors(NPOINTS060 + NPOINTS086, data_x, data_y_npf, err_x, err_y_stat);
-  g_060_spectrum_var2_npf->SetMarkerColor(kBlue);
-  g_060_spectrum_var2_npf->SetLineColor(kBlue);
+  g_060_spectrum_var2_npf->SetMarkerColor(varColors[2]);
+  g_060_spectrum_var2_npf->SetLineColor(varColors[2]);
   g_060_spectrum_var2_npf->SetMarkerStyle(20);
   g_060_spectrum_var2_npf->SetMarkerSize(0.7);
 
-  f_spectrum_fit_var2_extrapolated->SetLineColor(kBlue);
-  f_spectrum_fit_var2_extrapolated_npf->SetLineColor(kBlue);
+  f_spectrum_fit_var2_extrapolated->SetLineColor(varColors[2]);
+  f_spectrum_fit_var2_extrapolated_npf->SetLineColor(varColors[2]);
 }
 
 
 void defineVariation3()
 {
   //Fit published spectrum with a Tsallis functional form
-  f_spectrum_fit_var3 = new TF1("f_spectrum_fit_var3", "[0]*(([1]-1)*([1]-1))/(([1]*[2] + 10.0*([1] - 1))*([1]*[2] + 10.0)) * pow(([1]*[2] + TMath::Sqrt(10.0*10.0 + x*x))/([1]*[2]+10.0),-1*[1])", 0, 18.0);
-  f_spectrum_fit_var3->SetParameter(0, 1.3);
-  f_spectrum_fit_var3->SetParameter(1, 5.5);
-  f_spectrum_fit_var3->SetParameter(2, 0.001);
-  g_combined->Fit(f_spectrum_fit_var3, "Q0R");
-  f_spectrum_fit_var3->SetLineColor(kOrange - 3);
+  f_spectrum_fit_var3 = new TF1("f_spectrum_fit_var3", "[0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])", 0.0, 18.0);
+  f_spectrum_fit_var3->SetParameters(13.0488, -0.191588, 0.0164036, 0.999159, 8.42105);
 
-  f_spectrum_fit_var3_extrapolated = new TF1("f_spectrum_fit_var3_extrapolated", "([0]*(([1]-1)*([1]-1))/(([1]*[2] + 10.0*([1] - 1))*([1]*[2] + 10.0)) * pow(([1]*[2] + TMath::Sqrt(10.0*10.0 + x*x))/([1]*[2]+10.0),-1*[1]))", 0.0, 18.0);
+  f_spectrum_fit_var3->SetLineColor(kOrange - 3);
+  f_spectrum_fit_var3->Draw();
+
+  f_spectrum_fit_var3_extrapolated = new TF1("f_spectrum_fit_var3_extrapolated", "[0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])", 0.0, 18.0);
   f_spectrum_fit_var3_extrapolated->SetParameters(f_spectrum_fit_var3->GetParameter(0), f_spectrum_fit_var3->GetParameter(1), f_spectrum_fit_var3->GetParameter(2));
   f_spectrum_fit_var3_extrapolated->SetLineColor(kOrange - 3);
 
-  f_spectrum_fit_var3_extrapolated_npf = new TF1("f_spectrum_fit_var3_extrapolated_npf", "2*TMath::Pi()*x*(([0]*(([1]-1)*([1]-1))/(([1]*[2] + 10.0*([1] - 1))*([1]*[2] + 10.0)) * pow(([1]*[2] + TMath::Sqrt(10.0*10.0 + x*x))/([1]*[2]+10.0),-1*[1])))", 0.0, 18.0);
+  f_spectrum_fit_var3_extrapolated_npf = new TF1("f_spectrum_fit_var3_extrapolated_npf", "2*TMath::Pi()*x*[0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])", 0.0, 18.0);
   f_spectrum_fit_var3_extrapolated_npf->SetParameters(f_spectrum_fit_var3->GetParameter(0), f_spectrum_fit_var3->GetParameter(1), f_spectrum_fit_var3->GetParameter(2));
   f_spectrum_fit_var3_extrapolated_npf->SetLineColor(kOrange - 3);
 }
@@ -653,7 +659,7 @@ void defineVariation4()
   f_spectrum_fit_var4->SetParameter(0, 1.3);
   f_spectrum_fit_var4->SetParameter(1, 5.5);
   f_spectrum_fit_var4->SetParameter(2, 0.001);
-  g_060_spectrum->Fit(f_spectrum_fit_var4, "Q0R");
+  g_combined->Fit(f_spectrum_fit_var4, "Q0R");
   f_spectrum_fit_var4->SetLineColor(kSpring - 6);
 
   f_spectrum_fit_var4_extrapolated = new TF1("f_spectrum_fit_var4_extrapolated", "([0]*(([1]-1)*([1]-1))/(([1]*[2] + 0.53*([1] - 1))*([1]*[2] + 0.53)) * pow(([1]*[2] + TMath::Sqrt(0.53*0.53 + x*x))/([1]*[2]+0.53),-1*[1]))", 0.0, 18.0);
@@ -701,12 +707,12 @@ void plotDataPublishedFit()
   //g_060_spectrum_var2->Draw("P,same");
   //f_published_060_spectrum_fit_extrapolated->Draw("same");
   f_combined_fit->Draw("same");
-  f_combined_fit_puncert->Draw("same");
-  f_combined_fit_muncert->Draw("same");
+  //f_combined_fit_puncert->Draw("same");
+  //f_combined_fit_muncert->Draw("same");
   f_spectrum_fit_var1_extrapolated->Draw("same");
   f_spectrum_fit_var2_extrapolated->Draw("same");
 
-  //f_spectrum_fit_var3_extrapolated->Draw("same");
+  f_spectrum_fit_var3_extrapolated->Draw("same");
   //f_spectrum_fit_var4->Draw("same");
 
   for (int i = 0; i < NPOINTS060 + NPOINTS086; i++)
@@ -718,6 +724,7 @@ void plotDataPublishedFit()
 
 void plotDataNoPhaseFactor()
 {
+  /*
   TCanvas *cNP = new TCanvas("cNP", "No Phase Space Factor", 700, 700);
   cNP->SetLogy();
 
@@ -794,8 +801,8 @@ void plotDataNoPhaseFactor()
 
   g_combined_npf->Draw("P,same");
   f_combined_fit_npf->Draw("same");
-  f_combined_fit_puncert_npf->Draw("same");
-  f_combined_fit_muncert_npf->Draw("same");
+  //f_combined_fit_puncert_npf->Draw("same");
+  //f_combined_fit_muncert_npf->Draw("same");
   //g_060_spectrum_npf->Draw("P,same");
   //g_136_spectrum_npf->Draw("P,same");
   //g_086_spectrum_npf->Draw("P,same");
@@ -827,6 +834,109 @@ void plotDataNoPhaseFactor()
   latex.SetTextSize(0.025);
   latex.DrawLatex(.15, .85, "PHENIX Direct Photon Spectrum");
   latex.DrawLatex(.15, .82, "PRL 98, 012002 [PPG060]");
+  */
+
+  TCanvas *cNP = new TCanvas("cNP", "Stacked Representation of Fit", 700, 900);
+  TPad *pad1 = new TPad("pad1", "pad1", 0, 0.3, 1, 1);
+  pad1->SetLogy();
+  pad1->SetTickx();
+  pad1->SetTicky();
+  pad1->SetBottomMargin(0);
+  pad1->Draw();
+  pad1->cd();
+
+  TH1F *hTemplate2 = new TH1F("hTemplate2", "hTemplate2", 100, 0, 20);
+  hTemplate2->SetTitle("");
+  hTemplate2->GetXaxis()->SetTitleFont(62);
+  hTemplate2->GetXaxis()->SetLabelFont(62);
+  hTemplate2->GetXaxis()->SetRangeUser(0, 18);
+  hTemplate2->GetYaxis()->SetTitleFont(62);
+  hTemplate2->GetYaxis()->SetLabelFont(62);
+  hTemplate2->GetXaxis()->SetTitle("p_{T} [GeV/c]");
+  hTemplate2->GetYaxis()->SetTitle("dN/dp_{T}");
+  hTemplate2->GetYaxis()->SetTitleOffset(1.3);
+  hTemplate2->GetYaxis()->SetRangeUser(2e-8, 200);
+  hTemplate2->Draw();
+
+  g_combined_npf->SetTitle("");
+  g_combined_npf->GetXaxis()->SetTitleFont(62);
+  g_combined_npf->GetXaxis()->SetLabelFont(62);
+  g_combined_npf->GetXaxis()->SetRangeUser(0, 18);
+  g_combined_npf->GetYaxis()->SetTitleFont(62);
+  g_combined_npf->GetYaxis()->SetLabelFont(62);
+  g_combined_npf->GetXaxis()->SetTitle("p_{T} [GeV/c]");
+  g_combined_npf->GetYaxis()->SetTitle("dN/dp_{T}");
+  g_combined_npf->GetYaxis()->SetRangeUser(1e-8, 150);
+  g_combined_npf->SetMarkerStyle(20);
+  g_combined_npf->SetMarkerSize(0.8);
+  g_combined_npf->SetMarkerColor(kBlack);
+  g_combined_npf->Draw("P,same");
+  f_combined_fit_npf->Draw("same");
+  f_published_136_spectrum_fit_extrapolated_npf->Draw("same");
+  f_spectrum_fit_var1_extrapolated_npf->Draw("same");
+  f_spectrum_fit_var2_extrapolated_npf->Draw("same");
+
+  g_nlo_136_npf->Draw("L,same");
+  g_nlo_060_npf->Draw("L, same");
+
+  g_nlo_136_npf->SetLineStyle(7);
+  g_nlo_060_npf->SetLineStyle(7);
+
+  for (int i = 0; i < NPOINTS086 + NPOINTS060; i++)
+  {
+    systematicErrors_npfCombined[i]->Draw("same");
+  }
+
+  TLatex latex;
+  latex.SetNDC();
+  latex.SetTextSize(0.025);
+  latex.DrawLatex(.15, .85, "PHENIX Direct Photon Spectrum");
+  latex.DrawLatex(.15, .82, "PRL 98, 012002 [PPG060]");
+  /*
+    TLegend *legend = new TLegend(0.45, 0.45, 0.88, 0.65);
+    legend->AddEntry(f_mtscaled_spectrum_npf, "Fit to Spectrum (based on m_{T} scaling)", "l");
+    legend->AddEntry(f_published_spectrum_fit_extrapolated_npf, "Variation 1: Modified Hagedorn", "l");
+    legend->AddEntry(f_spectrum_fit_var1_extrapolated_npf, "Variation 2: Counterclockwise Tilt", "l");
+    legend->AddEntry(f_spectrum_fit_var2_extrapolated_npf, "Variation 3: Clockwise Tilt", "l");
+    legend->AddEntry(f_spectrum_fit_var4_extrapolated_npf, "Variation 4: Tsallis", "l");
+    legend->SetFillStyle(0.0);
+    legend->SetLineColor(kWhite);
+    legend->Draw("same");
+    */
+
+  cNP->cd();
+  TPad *pad2 = new TPad("pad2", "pad2", 0, 0, 1, 0.3);
+  pad2->SetTopMargin(0);
+  pad2->SetBottomMargin(0.3);
+  pad2->Draw();
+  pad2->cd();
+  pad2->SetTickx();
+  pad2->SetTicky();
+  /*
+  h_ratio_var1->SetMarkerStyle(7);
+  h_ratio_var1->GetXaxis()->SetTitleFont(62);
+  h_ratio_var1->GetXaxis()->SetLabelFont(62);
+  h_ratio_var1->GetXaxis()->SetRangeUser(0, 18);
+  h_ratio_var1->GetYaxis()->SetTitleFont(62);
+  h_ratio_var1->GetYaxis()->SetLabelFont(62);
+  h_ratio_var1->SetTitle("");
+  h_ratio_var1->GetYaxis()->CenterTitle();
+  h_ratio_var1->GetYaxis()->SetRangeUser(0.0, 4.8);
+  h_ratio_var1->GetXaxis()->SetTitle("p_{T} [GeV/c]");
+  h_ratio_var1->GetYaxis()->SetTitle("Variation / Fit");
+  h_ratio_var1->GetYaxis()->SetTitleSize(0.085);
+  h_ratio_var1->GetYaxis()->SetTitleOffset(0.4);
+  h_ratio_var1->GetYaxis()->SetLabelSize(0.085);
+  h_ratio_var1->GetXaxis()->SetTitleSize(0.085);
+  h_ratio_var1->GetXaxis()->SetTitleOffset(1.2);
+  h_ratio_var1->GetXaxis()->SetLabelSize(0.085);
+  h_ratio_var1->Draw("L");
+  h_ratio_var2->Draw("L,same");
+  h_ratio_var3->Draw("L,same");
+  h_ratio_var4->Draw("L,same");
+  */
+
+  cNP->cd();
 }
 
 
@@ -841,8 +951,8 @@ void systematicsPhotons()
   combinePublications();
   defineVariation1();
   defineVariation2();
-  //defineVariation3();
-  //defineVariation4();
+  defineVariation3();
+  defineVariation4();
   plotDataPublishedFit();
   plotDataNoPhaseFactor();
 }
