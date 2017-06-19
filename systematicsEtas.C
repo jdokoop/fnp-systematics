@@ -105,6 +105,12 @@ TF1 *f_spectrum_fit_var4;
 TF1 *f_spectrum_fit_var4_extrapolated;
 TF1 *f_spectrum_fit_var4_extrapolated_npf;
 
+//Ratio of different variations relative to central fit
+TH1F *h_ratio_var1;
+TH1F *h_ratio_var2;
+TH1F *h_ratio_var3;
+TH1F *h_ratio_var4;
+
 //----------------------
 // Functions
 //----------------------
@@ -287,10 +293,14 @@ void defineVariation4()
 {
 	//Fit published spectrum with a Tsallis functional form
 	f_spectrum_fit_var4 = new TF1("f_spectrum_fit_var4", "[0]*(([1]-1)*([1]-1))/(([1]*[2] + 0.53*([1] - 1))*([1]*[2] + 0.53)) * pow(([1]*[2] + TMath::Sqrt(0.53*0.53 + x*x))/([1]*[2]+0.53),-1*[1])", 0, 18.0);
-	f_spectrum_fit_var4->SetParameter(0, 1.3);
-	f_spectrum_fit_var4->SetParameter(1, 5.5);
-	f_spectrum_fit_var4->SetParameter(2, 0.001);
+	f_spectrum_fit_var4->SetParameter(0, 7.86561e-01);
+	f_spectrum_fit_var4->SetParameter(1, 9.24328e+00);
+	f_spectrum_fit_var4->SetParameter(2, 1.00848e-01);
+	//f_spectrum_fit_var3->SetParameter(0, 1.3);
+	//f_spectrum_fit_var3->SetParameter(1, 5.5);
+	//f_spectrum_fit_var3->SetParameter(2, 0.001);
 	g_spectrum->Fit(f_spectrum_fit_var4, "Q0R");
+
 	f_spectrum_fit_var4->SetLineColor(kSpring - 6);
 
 	f_spectrum_fit_var4_extrapolated = new TF1("f_spectrum_fit_var4_extrapolated", "([0]*(([1]-1)*([1]-1))/(([1]*[2] + 0.53*([1] - 1))*([1]*[2] + 0.53)) * pow(([1]*[2] + TMath::Sqrt(0.53*0.53 + x*x))/([1]*[2]+0.53),-1*[1]))", 0.0, 18.0);
@@ -300,6 +310,29 @@ void defineVariation4()
 	f_spectrum_fit_var4_extrapolated_npf = new TF1("f_spectrum_fit_var4_extrapolated_npf", "2*TMath::Pi()*x*(([0]*(([1]-1)*([1]-1))/(([1]*[2] + 0.53*([1] - 1))*([1]*[2] + 0.53)) * pow(([1]*[2] + TMath::Sqrt(0.53*0.53 + x*x))/([1]*[2]+0.53),-1*[1])))", 0.0, 18.0);
 	f_spectrum_fit_var4_extrapolated_npf->SetParameters(f_spectrum_fit_var4->GetParameter(0), f_spectrum_fit_var4->GetParameter(1), f_spectrum_fit_var4->GetParameter(2));
 	f_spectrum_fit_var4_extrapolated_npf->SetLineColor(kSpring - 6);
+}
+
+
+void getRatios()
+{
+	h_ratio_var1 = new TH1F("h_ratio_var1", "h_ratio_var1", 100, 0, 18.0);
+	h_ratio_var2 = new TH1F("h_ratio_var2", "h_ratio_var2", 100, 0, 18.0);
+	h_ratio_var3 = new TH1F("h_ratio_var3", "h_ratio_var3", 100, 0, 18.0);
+	h_ratio_var4 = new TH1F("h_ratio_var4", "h_ratio_var4", 100, 0, 18.0);
+
+	for (int i = 0; i < 100; i++)
+	{
+		float ratio1 = f_spectrum_fit_var1_extrapolated_npf->Eval(h_ratio_var1->GetBinCenter(i + 1)) / f_mtscaled_spectrum_npf->Eval(h_ratio_var1->GetBinCenter(i + 1));
+		float ratio2 = f_spectrum_fit_var2_extrapolated_npf->Eval(h_ratio_var2->GetBinCenter(i + 1)) / f_mtscaled_spectrum_npf->Eval(h_ratio_var2->GetBinCenter(i + 1));
+		float ratio3 = f_spectrum_fit_var3_extrapolated_npf->Eval(h_ratio_var3->GetBinCenter(i + 1)) / f_mtscaled_spectrum_npf->Eval(h_ratio_var3->GetBinCenter(i + 1));
+		float ratio4 = f_spectrum_fit_var4_extrapolated_npf->Eval(h_ratio_var4->GetBinCenter(i + 1)) / f_mtscaled_spectrum_npf->Eval(h_ratio_var4->GetBinCenter(i + 1));
+
+		h_ratio_var1->SetBinContent(i, ratio1);
+		h_ratio_var2->SetBinContent(i, ratio2);
+		h_ratio_var3->SetBinContent(i, ratio3);
+		h_ratio_var4->SetBinContent(i, ratio4);
+	}
+
 }
 
 
@@ -386,9 +419,9 @@ void plotDataNoPhaseFactor()
 	//g_spectrum_var1_npf->Draw("P,same");
 	//g_spectrum_var2_npf->Draw("P,same");
 	f_published_spectrum_fit_extrapolated_npf->Draw("same");
-	//f_spectrum_fit_var1_extrapolated_npf->Draw("same");
-	//f_spectrum_fit_var2_extrapolated_npf->Draw("same");
-	f_spectrum_fit_var3_extrapolated_npf->Draw("same");
+	f_spectrum_fit_var1_extrapolated_npf->Draw("same");
+	f_spectrum_fit_var2_extrapolated_npf->Draw("same");
+	//f_spectrum_fit_var3_extrapolated_npf->Draw("same");
 	//f_spectrum_fit_var4_extrapolated_npf->Draw("same");
 
 	f_mtscaled_spectrum_npf->Draw("same");
@@ -415,7 +448,8 @@ void systematicsEtas()
 	defineVariation2();
 	defineVariation3();
 	defineVariation4();
-	plotDataPublishedFit();
+	getRatios();
+	//plotDataPublishedFit();
 	plotDataNoPhaseFactor();
 }
 
