@@ -12,6 +12,8 @@
 
 const int NPOINTS = 12;
 
+int varColors[4] = {kGreen + 2, kRed, kBlue, kMagenta + 1};
+
 TGraphErrors *g_spectrum;
 TGraphErrors *g_spectrum_npf;
 TF1 *f_published_spectrum_fit;
@@ -120,12 +122,12 @@ void makePublishedSpectrum()
 	//Define spectrum obtained from mT scaling
 	f_mtscaled_spectrum = new TF1("f_mtscaled_spectrum", "TMath::Power(TMath::Sqrt(1 + (0.135/x)*(0.135/x)),-1.0)*0.5*TMath::Sqrt(1 + (0.135/x)*(0.135/x))*(([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])))", 0.0, 18.0);
 	f_mtscaled_spectrum->SetParameters(254.066, 0.470186, 0.0380066, 0.737713, 8.28442);
-	f_mtscaled_spectrum->SetLineColor(kGreen + 2);
+	f_mtscaled_spectrum->SetLineColor(kBlack);
 	f_mtscaled_spectrum->SetLineStyle(7);
 
 	f_mtscaled_spectrum_npf = new TF1("f_mtscaled_spectrum_npf", "TMath::Power(TMath::Sqrt(1 + (0.135/x)*(0.135/x)),-1.0)*0.5*TMath::Sqrt(1 + (0.135/x)*(0.135/x))*(2*TMath::Pi()*x*([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])))", 0.0, 18.0);
 	f_mtscaled_spectrum_npf->SetParameters(254.066, 0.470186, 0.0380066, 0.737713, 8.28442);
-	f_mtscaled_spectrum_npf->SetLineColor(kGreen + 2);
+	f_mtscaled_spectrum_npf->SetLineColor(kBlack);
 	f_mtscaled_spectrum_npf->SetLineStyle(7);
 
 	//Make spectrum with no phase space factor
@@ -157,15 +159,15 @@ void makePublishedSpectrum()
 
 	f_published_spectrum_fit = new TF1("f_published_spectrum_fit", "([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 3.25, 15.0);
 	f_published_spectrum_fit->SetParameters(545.206, 0.421156, -0.00156003, 0.58791, 8.04994);
-	f_published_spectrum_fit->SetLineColor(kBlack);
+	f_published_spectrum_fit->SetLineColor(varColors[0]);
 
 	f_published_spectrum_fit_extrapolated = new TF1("f_published_spectrum_fit_extrapolated", "([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 0.0, 18.0);
 	f_published_spectrum_fit_extrapolated->SetParameters(f_published_spectrum_fit->GetParameter(0), f_published_spectrum_fit->GetParameter(1), f_published_spectrum_fit->GetParameter(2), f_published_spectrum_fit->GetParameter(3), f_published_spectrum_fit->GetParameter(4));
-	f_published_spectrum_fit_extrapolated->SetLineColor(kBlack);
+	f_published_spectrum_fit_extrapolated->SetLineColor(varColors[0]);
 
 	f_published_spectrum_fit_extrapolated_npf = new TF1("f_published_spectrum_fit_extrapolated_npf", "2*TMath::Pi()*x*([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 0.0, 18.0);
 	f_published_spectrum_fit_extrapolated_npf->SetParameters(f_published_spectrum_fit->GetParameter(0), f_published_spectrum_fit->GetParameter(1), f_published_spectrum_fit->GetParameter(2), f_published_spectrum_fit->GetParameter(3), f_published_spectrum_fit->GetParameter(4));
-	f_published_spectrum_fit_extrapolated_npf->SetLineColor(kBlack);
+	f_published_spectrum_fit_extrapolated_npf->SetLineColor(varColors[0]);
 }
 
 
@@ -209,8 +211,8 @@ void defineVariation1()
 	}
 
 	g_spectrum_var1_npf = new TGraphErrors(NPOINTS, data_x, data_y_npf, err_x, err_y_stat);
-	g_spectrum_var1_npf->SetMarkerColor(kRed);
-	g_spectrum_var1_npf->SetLineColor(kRed);
+	g_spectrum_var1_npf->SetMarkerColor(varColors[1]);
+	g_spectrum_var1_npf->SetLineColor(varColors[1]);
 	g_spectrum_var1_npf->SetMarkerStyle(20);
 	g_spectrum_var1_npf->SetMarkerSize(0.7);
 }
@@ -259,8 +261,8 @@ void defineVariation2()
 	}
 
 	g_spectrum_var2_npf = new TGraphErrors(NPOINTS, data_x, data_y_npf, err_x, err_y_stat);
-	g_spectrum_var2_npf->SetMarkerColor(kBlue);
-	g_spectrum_var2_npf->SetLineColor(kBlue);
+	g_spectrum_var2_npf->SetMarkerColor(varColors[2]);
+	g_spectrum_var2_npf->SetLineColor(varColors[2]);
 	g_spectrum_var2_npf->SetMarkerStyle(20);
 	g_spectrum_var2_npf->SetMarkerSize(0.7);
 }
@@ -301,15 +303,15 @@ void defineVariation4()
 	//f_spectrum_fit_var3->SetParameter(2, 0.001);
 	g_spectrum->Fit(f_spectrum_fit_var4, "Q0R");
 
-	f_spectrum_fit_var4->SetLineColor(kSpring - 6);
+	f_spectrum_fit_var4->SetLineColor(varColors[3]);
 
 	f_spectrum_fit_var4_extrapolated = new TF1("f_spectrum_fit_var4_extrapolated", "([0]*(([1]-1)*([1]-1))/(([1]*[2] + 0.53*([1] - 1))*([1]*[2] + 0.53)) * pow(([1]*[2] + TMath::Sqrt(0.53*0.53 + x*x))/([1]*[2]+0.53),-1*[1]))", 0.0, 18.0);
 	f_spectrum_fit_var4_extrapolated->SetParameters(f_spectrum_fit_var4->GetParameter(0), f_spectrum_fit_var4->GetParameter(1), f_spectrum_fit_var4->GetParameter(2));
-	f_spectrum_fit_var4_extrapolated->SetLineColor(kSpring - 6);
+	f_spectrum_fit_var4_extrapolated->SetLineColor(varColors[3]);
 
 	f_spectrum_fit_var4_extrapolated_npf = new TF1("f_spectrum_fit_var4_extrapolated_npf", "2*TMath::Pi()*x*(([0]*(([1]-1)*([1]-1))/(([1]*[2] + 0.53*([1] - 1))*([1]*[2] + 0.53)) * pow(([1]*[2] + TMath::Sqrt(0.53*0.53 + x*x))/([1]*[2]+0.53),-1*[1])))", 0.0, 18.0);
 	f_spectrum_fit_var4_extrapolated_npf->SetParameters(f_spectrum_fit_var4->GetParameter(0), f_spectrum_fit_var4->GetParameter(1), f_spectrum_fit_var4->GetParameter(2));
-	f_spectrum_fit_var4_extrapolated_npf->SetLineColor(kSpring - 6);
+	f_spectrum_fit_var4_extrapolated_npf->SetLineColor(varColors[3]);
 }
 
 
@@ -422,7 +424,7 @@ void plotDataNoPhaseFactor()
 	f_spectrum_fit_var1_extrapolated_npf->Draw("same");
 	f_spectrum_fit_var2_extrapolated_npf->Draw("same");
 	//f_spectrum_fit_var3_extrapolated_npf->Draw("same");
-	//f_spectrum_fit_var4_extrapolated_npf->Draw("same");
+	f_spectrum_fit_var4_extrapolated_npf->Draw("same");
 
 	f_mtscaled_spectrum_npf->Draw("same");
 
