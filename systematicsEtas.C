@@ -12,7 +12,7 @@
 
 const int NPOINTS = 12;
 
-int varColors[4] = {kGreen + 2, kRed, kBlue, kMagenta + 1};
+int varColors[4] = {kGreen + 2, kRed, kBlue, kOrange-3};
 
 TGraphErrors *g_spectrum;
 TGraphErrors *g_spectrum_npf;
@@ -459,6 +459,15 @@ void plotDataNoPhaseFactor()
 	latex.DrawLatex(.15, .85, "PHENIX Eta Spectrum");
 	latex.DrawLatex(.15, .82, "PRD 76, 051106(R) [PPG063]");
 
+	TLegend *legend = new TLegend(0.45, 0.45, 0.88, 0.65);
+	legend->AddEntry(f_mtscaled_spectrum_npf, "Fit to Spectrum (based on m_{T} scaling)", "l");
+	legend->AddEntry(f_published_spectrum_fit_extrapolated_npf, "Variation 1: Modified Hagedorn", "l");
+	legend->AddEntry(f_spectrum_fit_var1_extrapolated_npf, "Variation 2: Counterclockwise Tilt", "l");
+	legend->AddEntry(f_spectrum_fit_var2_extrapolated_npf, "Variation 3: Clockwise Tilt", "l");
+	legend->AddEntry(f_spectrum_fit_var4_extrapolated_npf, "Variation 4: Tsallis", "l");
+	legend->SetFillStyle(0.0);
+	legend->SetLineColor(kWhite);
+	legend->Draw("same");
 
 	cNP->cd();
 	TPad *pad2 = new TPad("pad2", "pad2", 0, 0, 1, 0.3);
