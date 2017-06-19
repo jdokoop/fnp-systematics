@@ -20,6 +20,10 @@ TF1 *f_published_spectrum_fit_extrapolated_npf;
 TBox *systematicErrors[NPOINTS];
 TBox *systematicErrors_npf[NPOINTS];
 
+//mT-scaled spectrum to guide extrapolation at low pT
+TF1 *f_mtscaled_spectrum;
+TF1 *f_mtscaled_spectrum_npf;
+
 //Points from published spectrum Dd^3\sigma/dp^3 = (1/2pi pT) dN/dpT
 float data_x[NPOINTS] = {2.75,
                          3.25,
@@ -107,6 +111,17 @@ TF1 *f_spectrum_fit_var4_extrapolated_npf;
 
 void makePublishedSpectrum()
 {
+	//Define spectrum obtained from mT scaling
+	f_mtscaled_spectrum = new TF1("f_mtscaled_spectrum", "TMath::Power(TMath::Sqrt(1 + (0.135/x)*(0.135/x)),-1.0)*0.5*TMath::Sqrt(1 + (0.135/x)*(0.135/x))*(([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])))", 0.0, 18.0);
+	f_mtscaled_spectrum->SetParameters(254.066, 0.470186, 0.0380066, 0.737713, 8.28442);
+	f_mtscaled_spectrum->SetLineColor(kGreen + 2);
+	f_mtscaled_spectrum->SetLineStyle(7);
+
+	f_mtscaled_spectrum_npf = new TF1("f_mtscaled_spectrum_npf", "TMath::Power(TMath::Sqrt(1 + (0.135/x)*(0.135/x)),-1.0)*0.5*TMath::Sqrt(1 + (0.135/x)*(0.135/x))*(2*TMath::Pi()*x*([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])))", 0.0, 18.0);
+	f_mtscaled_spectrum_npf->SetParameters(254.066, 0.470186, 0.0380066, 0.737713, 8.28442);
+	f_mtscaled_spectrum_npf->SetLineColor(kGreen + 2);
+	f_mtscaled_spectrum_npf->SetLineStyle(7);
+
 	//Make spectrum with no phase space factor
 	float data_y_npf[NPOINTS];
 	float err_y_stat_npf[NPOINTS];
@@ -152,7 +167,7 @@ void defineVariation1()
 {
 	//Define the seventh point in the spectrum as a tipping point, and tilt clockwise about that point by an amount proportional to the point's pT
 	float data_y_var1[NPOINTS];
-	int tippingPointIndex = 8;
+	int tippingPointIndex = 9;
 	float pTextreme = data_x[0];
 	float pT0 = data_x[tippingPointIndex];
 
@@ -199,7 +214,7 @@ void defineVariation2()
 {
 	//Define the seventh point in the spectrum as a tipping point, and tilt clockwise about that point by an amount proportional to the point's pT
 	float data_y_var2[NPOINTS];
-	int tippingPointIndex = 8;
+	int tippingPointIndex = 9;
 	float pTextreme = data_x[0];
 	float pT0 = data_x[tippingPointIndex];
 
@@ -249,8 +264,11 @@ void defineVariation3()
 {
 	//Fit published spectrum with a Tsallis functional form
 	f_spectrum_fit_var3 = new TF1("f_spectrum_fit_var3", "[0]*(([1]-1)*([1]-1))/(([1]*[2] + 10.0*([1] - 1))*([1]*[2] + 10.0)) * pow(([1]*[2] + TMath::Sqrt(10.0*10.0 + x*x))/([1]*[2]+10.0),-1*[1])", 0, 18.0);
-	f_spectrum_fit_var3->SetParameter(0, 1.3);
-	f_spectrum_fit_var3->SetParameter(1, 5.5);
+	//f_spectrum_fit_var3->SetParameter(0, 1.3);
+	//f_spectrum_fit_var3->SetParameter(1, 5.5);
+	//f_spectrum_fit_var3->SetParameter(2, 0.001);
+	f_spectrum_fit_var3->SetParameter(0, 50.0);
+	f_spectrum_fit_var3->SetParameter(1, 20.5);
 	f_spectrum_fit_var3->SetParameter(2, 0.001);
 	g_spectrum->Fit(f_spectrum_fit_var3, "Q0R");
 	f_spectrum_fit_var3->SetLineColor(kOrange - 3);
@@ -319,11 +337,13 @@ void plotDataPublishedFit()
 	//g_spectrum_var1->Draw("P,same");
 	//g_spectrum_var2->Draw("P,same");
 	f_published_spectrum_fit_extrapolated->Draw("same");
-	f_spectrum_fit_var1->Draw("same");
-	f_spectrum_fit_var2_extrapolated->Draw("same");
+	//f_spectrum_fit_var1->Draw("same");
+	//f_spectrum_fit_var2_extrapolated->Draw("same");
 
-	//f_spectrum_fit_var3_extrapolated->Draw("same");
+	f_spectrum_fit_var3_extrapolated->Draw("same");
 	//f_spectrum_fit_var4->Draw("same");
+
+	f_mtscaled_spectrum->Draw("same");
 
 	for (int i = 0; i < NPOINTS; i++)
 	{
@@ -366,10 +386,12 @@ void plotDataNoPhaseFactor()
 	//g_spectrum_var1_npf->Draw("P,same");
 	//g_spectrum_var2_npf->Draw("P,same");
 	f_published_spectrum_fit_extrapolated_npf->Draw("same");
-	f_spectrum_fit_var1_extrapolated_npf->Draw("same");
-	f_spectrum_fit_var2_extrapolated_npf->Draw("same");
+	//f_spectrum_fit_var1_extrapolated_npf->Draw("same");
+	//f_spectrum_fit_var2_extrapolated_npf->Draw("same");
 	f_spectrum_fit_var3_extrapolated_npf->Draw("same");
-	f_spectrum_fit_var4_extrapolated_npf->Draw("same");
+	//f_spectrum_fit_var4_extrapolated_npf->Draw("same");
+
+	f_mtscaled_spectrum_npf->Draw("same");
 
 	for (int i = 0; i < NPOINTS; i++)
 	{
