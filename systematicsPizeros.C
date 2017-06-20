@@ -153,6 +153,9 @@ TF1 *f_spectrum_fit_var4;
 TF1 *f_spectrum_fit_var4_extrapolated;
 TF1 *f_spectrum_fit_var4_extrapolated_npf;
 
+TH1F *h_ratio_var1;
+TH1F *h_ratio_var2;
+
 //----------------------
 // Functions
 //----------------------
@@ -257,7 +260,7 @@ void defineVariation2()
 
 	for (int i = 0; i < NPOINTS; i++)
 	{
-		float scaling = -1 * (err_y_syst[i] / 2.0) * ((data_x[i] - pT0) / (pTextreme - pT0));
+		float scaling = -1*(err_y_syst[i] / 2.0) * ((data_x[i] - pT0) / (pTextreme - pT0));
 		data_y_var2[i] = data_y[i] + scaling;
 	}
 
@@ -268,18 +271,15 @@ void defineVariation2()
 	g_spectrum_var2->SetMarkerSize(0.7);
 
 	//Fit the data with a modified Hagedorn function
-	f_spectrum_fit_var2 = new TF1("f_spectrum_fit_var2", "[0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])", 3.25, 15.0);
-	f_spectrum_fit_var2->SetParameters(13.04, -0.19, 0.016, 0.99, 8.42);
+	f_spectrum_fit_var2 = new TF1("f_spectrum_fit_var2", "[0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])", 0.0, 18.0);
+	f_spectrum_fit_var2->SetParameters(545.206, 0.421156, -0.00156003, 0.58791, 8.04994);
 	g_spectrum_var2->Fit(f_spectrum_fit_var2, "Q0R");
-	f_spectrum_fit_var2->SetLineColor(kBlue);
 
 	f_spectrum_fit_var2_extrapolated = new TF1("f_spectrum_fit_var2_extrapolated", "([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 0.0, 18.0);
 	f_spectrum_fit_var2_extrapolated->SetParameters(f_spectrum_fit_var2->GetParameter(0), f_spectrum_fit_var2->GetParameter(1), f_spectrum_fit_var2->GetParameter(2), f_spectrum_fit_var2->GetParameter(3), f_spectrum_fit_var2->GetParameter(4));
-	f_spectrum_fit_var2_extrapolated->SetLineColor(kBlue);
 
-	f_spectrum_fit_var2_extrapolated_npf = new TF1("f_spectrum_fit_var2_extrapolated_npf", "2*TMath::Pi()*x*([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4]))", 0.0, 18.0);
+	f_spectrum_fit_var2_extrapolated_npf = new TF1("f_spectrum_fit_var2_extrapolated_npf", "2*TMath::Pi()*x*(([0]/TMath::Power((TMath::Exp(-[1]*x-[2]*x*x)+(x/[3])),[4])))", 0.0, 18.0);
 	f_spectrum_fit_var2_extrapolated_npf->SetParameters(f_spectrum_fit_var2->GetParameter(0), f_spectrum_fit_var2->GetParameter(1), f_spectrum_fit_var2->GetParameter(2), f_spectrum_fit_var2->GetParameter(3), f_spectrum_fit_var2->GetParameter(4));
-	f_spectrum_fit_var2_extrapolated_npf->SetLineColor(kBlue);
 
 	//Spectrum without phase space factor
 	float data_y_npf[NPOINTS];
@@ -294,6 +294,8 @@ void defineVariation2()
 	g_spectrum_var2_npf->SetLineColor(kBlue);
 	g_spectrum_var2_npf->SetMarkerStyle(20);
 	g_spectrum_var2_npf->SetMarkerSize(0.7);
+
+	f_spectrum_fit_var2_extrapolated_npf->SetLineColor(kBlue);
 }
 
 
@@ -334,6 +336,29 @@ void defineVariation4()
 	f_spectrum_fit_var4_extrapolated_npf = new TF1("f_spectrum_fit_var4_extrapolated_npf", "2*TMath::Pi()*x*(([0]*(([1]-1)*([1]-1))/(([1]*[2] + 0.53*([1] - 1))*([1]*[2] + 0.53)) * pow(([1]*[2] + TMath::Sqrt(0.53*0.53 + x*x))/([1]*[2]+0.53),-1*[1])))", 0.0, 18.0);
 	f_spectrum_fit_var4_extrapolated_npf->SetParameters(f_spectrum_fit_var4->GetParameter(0), f_spectrum_fit_var4->GetParameter(1), f_spectrum_fit_var4->GetParameter(2));
 	f_spectrum_fit_var4_extrapolated_npf->SetLineColor(kSpring - 6);
+}
+
+
+void getRatios()
+{
+	h_ratio_var1 = new TH1F("h_ratio_var1", "h_ratio_var1", 100, 0, 20.0);
+	h_ratio_var2 = new TH1F("h_ratio_var2", "h_ratio_var2", 100, 0, 20.0);
+
+	for (int i = 0; i < 95; i++)
+	{
+		float ratio1 = f_spectrum_fit_var1_extrapolated_npf->Eval(h_ratio_var1->GetBinCenter(i + 1)) / f_published_spectrum_fit_extrapolated_npf->Eval(h_ratio_var1->GetBinCenter(i + 1));
+		float ratio2 = f_spectrum_fit_var2_extrapolated_npf->Eval(h_ratio_var2->GetBinCenter(i + 1)) / f_published_spectrum_fit_extrapolated_npf->Eval(h_ratio_var2->GetBinCenter(i + 1));
+
+		h_ratio_var1->SetBinContent(i, ratio1);
+		h_ratio_var2->SetBinContent(i, ratio2);
+	
+		h_ratio_var1->SetLineColor(kRed);
+		h_ratio_var2->SetLineColor(kBlue);
+	
+		h_ratio_var1->SetLineWidth(2);
+		h_ratio_var2->SetLineWidth(2);
+	}
+
 }
 
 
@@ -418,9 +443,9 @@ void plotDataNoPhaseFactor()
 	//g_spectrum_var1_npf->Draw("P,same");
 	//g_spectrum_var2_npf->Draw("P,same");
 	f_published_spectrum_fit_extrapolated_npf->Draw("same");
-	//f_spectrum_fit_var1_extrapolated_npf->Draw("same");
-	//f_spectrum_fit_var2_extrapolated_npf->Draw("same");
-	f_spectrum_fit_var3_extrapolated_npf->Draw("same");
+	f_spectrum_fit_var1_extrapolated_npf->Draw("same");
+	f_spectrum_fit_var2_extrapolated_npf->Draw("same");
+	//f_spectrum_fit_var3_extrapolated_npf->Draw("same");
 	//f_spectrum_fit_var4_extrapolated_npf->Draw("same");
 
 	for (int i = 0; i < NPOINTS; i++)
@@ -445,6 +470,7 @@ void systematicsPizeros()
 	defineVariation2();
 	defineVariation3();
 	defineVariation4();
+	getRatios();
 	//plotDataPublishedFit();
 	plotDataNoPhaseFactor();
 }
