@@ -73,6 +73,11 @@ TBox *systematicErrors_npfCombined[NPOINTS136 + NPOINTS086 + NPOINTS060];
 
 int varColors[3] = {kGreen + 2, kRed, kBlue};
 
+//Ratio of different variations relative to central fit
+TH1F *h_ratio_var1;
+TH1F *h_ratio_var2;
+TH1F *h_ratio_var3;
+
 ///////////////////////////////////////////////////////////
 // PPG060 - Dd^3\sigma/dp^3 = (1/2pi pT) dN/dpT
 ///////////////////////////////////////////////////////////
@@ -672,6 +677,32 @@ void defineVariation4()
 }
 
 
+void getRatios()
+{
+  h_ratio_var1 = new TH1F("h_ratio_var1", "h_ratio_var1", 100, 0, 20.0);
+  h_ratio_var2 = new TH1F("h_ratio_var2", "h_ratio_var2", 100, 0, 20.0);
+  h_ratio_var3 = new TH1F("h_ratio_var3", "h_ratio_var3", 100, 0, 20.0);
+
+  for (int i = 0; i < 95; i++)
+  {
+    float ratio1 = f_published_136_spectrum_fit_extrapolated_npf->Eval(h_ratio_var1->GetBinCenter(i + 1)) / f_combined_fit_npf->Eval(h_ratio_var1->GetBinCenter(i + 1));
+    float ratio2 = f_spectrum_fit_var1_extrapolated_npf->Eval(h_ratio_var2->GetBinCenter(i + 1)) / f_combined_fit_npf->Eval(h_ratio_var2->GetBinCenter(i + 1));
+    float ratio3 = f_spectrum_fit_var2_extrapolated_npf->Eval(h_ratio_var3->GetBinCenter(i + 1)) / f_combined_fit_npf->Eval(h_ratio_var3->GetBinCenter(i + 1));
+
+    h_ratio_var1->SetBinContent(i, ratio1);
+    h_ratio_var2->SetBinContent(i, ratio2);
+    h_ratio_var3->SetBinContent(i, ratio3);
+
+    h_ratio_var1->SetLineColor(varColors[0]);
+    h_ratio_var2->SetLineColor(varColors[1]);
+    h_ratio_var3->SetLineColor(varColors[2]);
+
+    h_ratio_var1->SetLineWidth(2);
+    h_ratio_var2->SetLineWidth(2);
+    h_ratio_var3->SetLineWidth(2);
+  }
+}
+
 void plotDataPublishedFit()
 {
   TCanvas *c = new TCanvas("c", "PPG036 Direct Photon Spectrum + Hagedorn Fit", 700, 700);
@@ -892,6 +923,15 @@ void plotDataNoPhaseFactor()
   latex.SetTextSize(0.025);
   latex.DrawLatex(.15, .85, "PHENIX Direct Photon Spectrum");
   latex.DrawLatex(.15, .82, "PRL 98, 012002 [PPG060]");
+
+  TLegend *legend = new TLegend(0.45, 0.45, 0.88, 0.65);
+  legend->AddEntry(f_combined_fit_npf, "Fit to Spectrum", "l");
+  legend->AddEntry(f_published_136_spectrum_fit_extrapolated_npf, "Variation 1: Modified Hagedorn", "l");
+  legend->AddEntry(f_spectrum_fit_var1_extrapolated_npf, "Variation 2: Clockwise Tilt", "l");
+  legend->AddEntry(f_spectrum_fit_var2_extrapolated_npf, "Variation 3: Counterclockwise Tilt", "l");
+  legend->SetFillStyle(0.0);
+  legend->SetLineColor(kWhite);
+  legend->Draw("same");
   /*
     TLegend *legend = new TLegend(0.45, 0.45, 0.88, 0.65);
     legend->AddEntry(f_mtscaled_spectrum_npf, "Fit to Spectrum (based on m_{T} scaling)", "l");
@@ -912,7 +952,7 @@ void plotDataNoPhaseFactor()
   pad2->cd();
   pad2->SetTickx();
   pad2->SetTicky();
-  /*
+
   h_ratio_var1->SetMarkerStyle(7);
   h_ratio_var1->GetXaxis()->SetTitleFont(62);
   h_ratio_var1->GetXaxis()->SetLabelFont(62);
@@ -933,8 +973,6 @@ void plotDataNoPhaseFactor()
   h_ratio_var1->Draw("L");
   h_ratio_var2->Draw("L,same");
   h_ratio_var3->Draw("L,same");
-  h_ratio_var4->Draw("L,same");
-  */
 
   cNP->cd();
 }
@@ -953,6 +991,7 @@ void systematicsPhotons()
   defineVariation2();
   defineVariation3();
   defineVariation4();
+  getRatios();
   plotDataPublishedFit();
   plotDataNoPhaseFactor();
 }
