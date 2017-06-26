@@ -978,6 +978,78 @@ void plotDataNoPhaseFactor()
 }
 
 
+void printParameters()
+{
+  //Default fit
+  string formula = (string) f_combined_fit_npf->GetFormula()->GetExpFormula();
+  cout << Form("f_photon_spectrum[0] = new TF1(\"f_photon_spectrum_0\", \"%s\", 0.0, 18.0);", formula.c_str()) << endl;
+  cout << "f_photon_spectrum[0]->SetParameters(";
+  for (int i = 0; i < f_combined_fit_npf->GetNumberFreeParameters(); i++)
+  {
+    if (i == f_combined_fit_npf->GetNumberFreeParameters() - 1)
+    {
+      cout << f_combined_fit_npf->GetParameter(i);
+    }
+    else
+    {
+      cout << f_combined_fit_npf->GetParameter(i) << ",";
+    }
+  }
+  cout << ");" << endl << endl;
+
+  //Variation 1
+  formula = (string) f_published_136_spectrum_fit_extrapolated_npf->GetFormula()->GetExpFormula();
+  cout << Form("f_photon_spectrum[1] = new TF1(\"f_photon_spectrum_0\", \"%s\", 0.0, 18.0);", formula.c_str()) << endl;
+  cout << "f_photon_spectrum[1]->SetParameters(";
+  for (int i = 0; i < f_published_136_spectrum_fit_extrapolated_npf->GetNumberFreeParameters(); i++)
+  {
+    if (i == f_published_136_spectrum_fit_extrapolated_npf->GetNumberFreeParameters() - 1)
+    {
+      cout << f_published_136_spectrum_fit_extrapolated_npf->GetParameter(i);
+    }
+    else
+    {
+      cout << f_published_136_spectrum_fit_extrapolated_npf->GetParameter(i) << ",";
+    }
+  }
+  cout << ");" << endl << endl;
+
+  //Variation 2
+  formula = (string) f_spectrum_fit_var1_extrapolated_npf->GetFormula()->GetExpFormula();
+  cout << Form("f_photon_spectrum[2] = new TF1(\"f_photon_spectrum_0\", \"%s\", 0.0, 18.0);", formula.c_str()) << endl;
+  cout << "f_photon_spectrum[2]->SetParameters(";
+  for (int i = 0; i < f_spectrum_fit_var1_extrapolated_npf->GetNumberFreeParameters(); i++)
+  {
+    if (i == f_spectrum_fit_var1_extrapolated_npf->GetNumberFreeParameters() - 1)
+    {
+      cout << f_spectrum_fit_var1_extrapolated_npf->GetParameter(i);
+    }
+    else
+    {
+      cout << f_spectrum_fit_var1_extrapolated_npf->GetParameter(i) << ",";
+    }
+  }
+  cout << ");" << endl << endl;
+
+  //Variation 3
+  formula = (string) f_spectrum_fit_var2_extrapolated_npf->GetFormula()->GetExpFormula();
+  cout << Form("f_photon_spectrum[3] = new TF1(\"f_photon_spectrum_0\", \"%s\", 0.0, 18.0);", formula.c_str()) << endl;
+  cout << "f_photon_spectrum[3]->SetParameters(";
+  for (int i = 0; i < f_spectrum_fit_var2_extrapolated_npf->GetNumberFreeParameters(); i++)
+  {
+    if (i == f_spectrum_fit_var2_extrapolated_npf->GetNumberFreeParameters() - 1)
+    {
+      cout << f_spectrum_fit_var2_extrapolated_npf->GetParameter(i);
+    }
+    else
+    {
+      cout << f_spectrum_fit_var2_extrapolated_npf->GetParameter(i) << ",";
+    }
+  }
+  cout << ");" << endl << endl;
+}
+
+
 void systematicsPhotons()
 {
   gStyle->SetOptStat(0);
@@ -994,5 +1066,6 @@ void systematicsPhotons()
   getRatios();
   plotDataPublishedFit();
   plotDataNoPhaseFactor();
+  printParameters();
 }
 
