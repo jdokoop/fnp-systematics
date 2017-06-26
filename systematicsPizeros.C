@@ -260,7 +260,7 @@ void defineVariation2()
 
 	for (int i = 0; i < NPOINTS; i++)
 	{
-		float scaling = -1*(err_y_syst[i] / 2.0) * ((data_x[i] - pT0) / (pTextreme - pT0));
+		float scaling = -1 * (err_y_syst[i] / 2.0) * ((data_x[i] - pT0) / (pTextreme - pT0));
 		data_y_var2[i] = data_y[i] + scaling;
 	}
 
@@ -351,10 +351,10 @@ void getRatios()
 
 		h_ratio_var1->SetBinContent(i, ratio1);
 		h_ratio_var2->SetBinContent(i, ratio2);
-	
+
 		h_ratio_var1->SetLineColor(kRed);
 		h_ratio_var2->SetLineColor(kBlue);
-	
+
 		h_ratio_var1->SetLineWidth(2);
 		h_ratio_var2->SetLineWidth(2);
 	}
@@ -411,56 +411,6 @@ void plotDataPublishedFit()
 
 void plotDataNoPhaseFactor()
 {
-	/*
-	TCanvas *cNP = new TCanvas("cNP", "No Phase Space Factor", 700, 700);
-	cNP->SetLogy();
-
-	TH1F *hTemplate2 = new TH1F("hTemplate2", "hTemplate2", 100, 0, 20);
-	hTemplate2->SetTitle("");
-	hTemplate2->GetXaxis()->SetTitleFont(62);
-	hTemplate2->GetXaxis()->SetLabelFont(62);
-	hTemplate2->GetXaxis()->SetRangeUser(0, 20);
-	hTemplate2->GetYaxis()->SetTitleFont(62);
-	hTemplate2->GetYaxis()->SetLabelFont(62);
-	hTemplate2->GetXaxis()->SetTitle("p_{T} [GeV/c]");
-	hTemplate2->GetYaxis()->SetTitle("dN/dp_{T}");
-	hTemplate2->GetYaxis()->SetTitleOffset(1.3);
-	hTemplate2->GetYaxis()->SetRangeUser(1e-8, 150);
-	hTemplate2->Draw();
-
-	g_spectrum_npf->SetTitle("");
-	g_spectrum_npf->GetXaxis()->SetTitleFont(62);
-	g_spectrum_npf->GetXaxis()->SetLabelFont(62);
-	g_spectrum_npf->GetXaxis()->SetRangeUser(0, 18);
-	g_spectrum_npf->GetYaxis()->SetTitleFont(62);
-	g_spectrum_npf->GetYaxis()->SetLabelFont(62);
-	g_spectrum_npf->GetXaxis()->SetTitle("p_{T} [GeV/c]");
-	g_spectrum_npf->GetYaxis()->SetTitle("dN/dp_{T}");
-	g_spectrum_npf->GetYaxis()->SetRangeUser(1e-8, 150);
-	g_spectrum_npf->SetMarkerStyle(20);
-	g_spectrum_npf->SetMarkerSize(0.8);
-	g_spectrum_npf->SetMarkerColor(kBlack);
-	g_spectrum_npf->Draw("P,same");
-	//g_spectrum_var1_npf->Draw("P,same");
-	//g_spectrum_var2_npf->Draw("P,same");
-	f_published_spectrum_fit_extrapolated_npf->Draw("same");
-	f_spectrum_fit_var1_extrapolated_npf->Draw("same");
-	f_spectrum_fit_var2_extrapolated_npf->Draw("same");
-	//f_spectrum_fit_var3_extrapolated_npf->Draw("same");
-	//f_spectrum_fit_var4_extrapolated_npf->Draw("same");
-
-	for (int i = 0; i < NPOINTS; i++)
-	{
-		systematicErrors_npf[i]->Draw("same");
-	}
-
-	TLatex latex;
-	latex.SetNDC();
-	latex.SetTextSize(0.025);
-	latex.DrawLatex(.15, .85, "PHENIX Pizero Spectrum");
-	latex.DrawLatex(.15, .82, "PRD 76, 051106(R) [PPG063]");
-	*/
-
 	TCanvas *cNP = new TCanvas("cNP", "Stacked Representation of Fit", 700, 900);
 	TPad *pad1 = new TPad("pad1", "pad1", 0, 0.3, 1, 1);
 	pad1->SetLogy();
@@ -549,6 +499,59 @@ void plotDataNoPhaseFactor()
 	cNP->cd();
 }
 
+void printParameters()
+{
+	//Default fit
+	string formula = (string) f_published_spectrum_fit_extrapolated_npf->GetFormula()->GetExpFormula();
+	cout << Form("f_pizero_spectrum[0] = new TF1(\"f_pizero_spectrum_0\", \"%s\", 0.0, 18.0);", formula.c_str()) << endl;
+	cout << "f_pizero_spectrum[0]->SetParameters(";
+	for (int i = 0; i < f_published_spectrum_fit_extrapolated_npf->GetNumberFreeParameters(); i++)
+	{
+		if (i == f_published_spectrum_fit_extrapolated_npf->GetNumberFreeParameters() - 1)
+		{
+			cout << f_published_spectrum_fit_extrapolated_npf->GetParameter(i);
+		}
+		else
+		{
+			cout << f_published_spectrum_fit_extrapolated_npf->GetParameter(i) << ",";
+		}
+	}
+	cout << ");" << endl << endl;
+
+	//Variation 1
+	formula = (string) f_spectrum_fit_var1_extrapolated_npf->GetFormula()->GetExpFormula();
+	cout << Form("f_pizero_spectrum[1] = new TF1(\"f_pizero_spectrum_0\", \"%s\", 0.0, 18.0);", formula.c_str()) << endl;
+	cout << "f_pizero_spectrum[1]->SetParameters(";
+	for (int i = 0; i < f_spectrum_fit_var1_extrapolated_npf->GetNumberFreeParameters(); i++)
+	{
+		if (i == f_spectrum_fit_var1_extrapolated_npf->GetNumberFreeParameters() - 1)
+		{
+			cout << f_spectrum_fit_var1_extrapolated_npf->GetParameter(i);
+		}
+		else
+		{
+			cout << f_spectrum_fit_var1_extrapolated_npf->GetParameter(i) << ",";
+		}
+	}
+	cout << ");" << endl << endl;
+
+	//Variation 2
+	formula = (string) f_spectrum_fit_var2_extrapolated_npf->GetFormula()->GetExpFormula();
+	cout << Form("f_pizero_spectrum[2] = new TF1(\"f_pizero_spectrum_0\", \"%s\", 0.0, 18.0);", formula.c_str()) << endl;
+	cout << "f_pizero_spectrum[2]->SetParameters(";
+	for (int i = 0; i < f_spectrum_fit_var2_extrapolated_npf->GetNumberFreeParameters(); i++)
+	{
+		if (i == f_spectrum_fit_var2_extrapolated_npf->GetNumberFreeParameters() - 1)
+		{
+			cout << f_spectrum_fit_var2_extrapolated_npf->GetParameter(i);
+		}
+		else
+		{
+			cout << f_spectrum_fit_var2_extrapolated_npf->GetParameter(i) << ",";
+		}
+	}
+	cout << ");" << endl << endl;
+}
 
 void systematicsPizeros()
 {
@@ -562,5 +565,6 @@ void systematicsPizeros()
 	getRatios();
 	//plotDataPublishedFit();
 	plotDataNoPhaseFactor();
+	printParameters();
 }
 
